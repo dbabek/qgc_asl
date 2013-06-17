@@ -1,31 +1,31 @@
-* { font-family: "Bitstream Vera Sans"; font: "Roman"; font-size: 12px; }
+/** { font-family: "Bitstream Vera Sans"; font: "Roman"; font-size: 12px; }*/
 QWidget#colorIcon {}
 
 QWidget {
-background-color: #050508;
-color: #DDDDDF;
-background-clip: border;
-font-size: 11px;
+    background-color: #222224;
+    color: #FFFFFF;
+    background-clip: border;
+    font-size: 11px;
 }
 
 QGroupBox {
-border: 1px solid #66666B;
-border-radius: 3px;
-padding: 10px 0px 0px 0px;
-margin-top: 1ex; /* leave space at the top for the title */
+    border: 1px solid #66666B;
+    border-radius: 3px;
+    padding: 10px 0px 0px 0px;
+    margin-top: 1ex; /* leave space at the top for the title */
 }
 
 QCheckBox {
-/*background-color: #252528;*/
-color: #DDDDDF;
+    /*background-color: #252528;*/
+    color: #DDDDDF;
 }
 
 QCheckBox::indicator {
     border: 1px solid #777777;
     border-radius: 2px;
-    color: #DDDDDF;
-         width: 10px;
-     height: 10px;
+    color: #FFFFFF;
+    width: 10px;
+    height: 10px;
 }
 
 QLineEdit {
@@ -80,9 +80,9 @@ border: 1px solid #777777;
  }
  
  QMainWindow::separator {
-     background: #090909;
-     width: 2px; /* when vertical */
-     height: 2px; /* when horizontal */
+    background-color: #323235;
+    width: 2px; /* when vertical */
+    height: 2px; /* when horizontal */
  }
 
  QMainWindow::separator:hover {
@@ -113,8 +113,7 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
 
  QDockWidget {
     border: 10px solid #66666B;
-     padding: 2px;
-     margin: 1px;
+     /*padding: 2px;*/
      border-radius: 1px;
      /*background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #59666f, stop: 1 #414B52);*/
   /*   titlebar-close-icon: url(close.png);
@@ -179,50 +178,48 @@ QDoubleSpinBox::down-button {
 }
 
 QPushButton {
-	/*font-weight: bold;
-	min-height: 18px;
-	max-height: 18px;
-    min-width: 60px;*/
-    min-height: 20px;
-    /*min-width: 24px;*/
-    max-height: 20px;
-	border: 0px solid #59666f;
+    min-height: 16px;
+	border: 1px solid #465158;
+    margin: 1px;
 	border-radius: 2px;
 	padding-left: 8px;
 	padding-right: 8px;
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #59666f, stop: 1 #414B52);
 }
 
+QPushButton:disabled {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #232228, stop: 1 #020208);
+}
+
 QPushButton:checked {
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #404040, stop: 1 #808080);
-    border: 0px solid #379AC3;
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #09A2B2, stop: 1 #414B52);
 }
 
 QPushButton:pressed {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #bbbbbb, stop: 1 #b0b0b0);
-    border: 0px solid #379AC3;
 }
 
 QToolButton {
 	font-weight: bold;
-	min-height: 20px;
-	/*min-width: 24px;*/
-	max-height: 20px;
-	border: 0px solid #4A4A4F;
+	min-height: 16px;
+	border: 1px solid #4A4A4F;
+    margin: 1px;
 	border-radius: 2px;
-        padding-left: 3px;
+    padding-left: 3px;
     padding-right: 3px;
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #59666f, stop: 1 #414B52);
 }
 
+QToolButton:disabled {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #232228, stop: 1 #020208);
+}
+
 QToolButton:checked {
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #090909, stop: 1 #353535);
-    border: 2px solid #379AC3;
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #09A2B2, stop: 1 #414B52);
 }
 
 QToolButton:pressed {
 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #bbbbbb, stop: 1 #b0b0b0);
-    border: 2px solid #379AC3;
 }
 
 QToolTip {
@@ -259,8 +256,19 @@ QMenuBar::item:disabled:pressed {
     border: none;
 }
 
+QSlider {
+    background-color: transparent;
+}
+
 QSlider::groove:horizontal {
      border: 1px solid #999999;
+     height: 4px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #4A4A4F, stop:1 #4A4A4F);
+     margin: 2px 0;
+ }
+
+ QSlider::groove:disabled:horizontal {
+     border: 1px solid #454545;
      height: 4px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
      background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #4A4A4F, stop:1 #4A4A4F);
      margin: 2px 0;
@@ -269,6 +277,14 @@ QSlider::groove:horizontal {
  QSlider::handle:horizontal {
      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #232228, stop: 1 #020208);
      border: 2px solid #379AC3;
+     width: 18px;
+     margin: -5px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+     border-radius: 3px;
+ }
+
+ QSlider::handle:disabled:horizontal {
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #535258, stop: 1 #050508);
+     border: 2px solid #444444;
      width: 18px;
      margin: -5px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
      border-radius: 3px;
@@ -417,6 +433,10 @@ QDialog {
 
 QLabel {
     background-color: transparent;
+}
+
+QLabel:disabled {
+    color: #353535;
 }
 
 QLabel#toolBarNameLabel {

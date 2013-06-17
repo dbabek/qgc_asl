@@ -72,6 +72,7 @@
     <addaction name="actionJoystickSettings"/>
     <addaction name="actionSettings"/>
     <addaction name="menuPreferences"/>
+    <addaction name="actionAdvanced_Mode"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -82,36 +83,13 @@
     <addaction name="actionAdd_Link"/>
     <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="menuConnected_Systems">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>Select System</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuUnmanned_System">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>System</string>
-    </property>
-    <property name="separatorsCollapsible">
-     <bool>false</bool>
-    </property>
-    <addaction name="actionShutdownMAV"/>
-    <addaction name="actionLiftoff"/>
-    <addaction name="actionLand"/>
-    <addaction name="actionEmergency_Land"/>
-    <addaction name="actionEmergency_Kill"/>
-   </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tool Widgets</string>
     </property>
     <addaction name="actionNewCustomWidget"/>
     <addaction name="actionLoadCustomWidgetFile"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -125,9 +103,11 @@
     <property name="title">
      <string>Perspectives</string>
     </property>
-    <addaction name="actionOperatorsView"/>
+    <addaction name="actionMissionView"/>
+    <addaction name="actionFlightView"/>
+    <addaction name="actionConfiguration_2"/>
     <addaction name="actionEngineersView"/>
-    <addaction name="actionPilotsView"/>
+    <addaction name="actionSimulationView"/>
     <addaction name="separator"/>
     <addaction name="actionFirmwareUpdateView"/>
     <addaction name="actionMavlinkView"/>
@@ -136,27 +116,10 @@
     <addaction name="actionFullscreen"/>
     <addaction name="actionNormal"/>
    </widget>
-   <widget class="QMenu" name="menuMain">
-    <property name="title">
-     <string>Main Widget</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuPlugins">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>Plugins</string>
-    </property>
-   </widget>
    <addaction name="menuMGround"/>
    <addaction name="menuNetwork"/>
-   <addaction name="menuConnected_Systems"/>
-   <addaction name="menuUnmanned_System"/>
    <addaction name="menuPerspectives"/>
-   <addaction name="menuMain"/>
    <addaction name="menuTools"/>
-   <addaction name="menuPlugins"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -314,7 +277,7 @@
     <string>Developer Credits</string>
    </property>
   </action>
-  <action name="actionOperatorsView">
+  <action name="actionMissionView">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -323,7 +286,7 @@
      <normaloff>:/files/images/status/weather-overcast.svg</normaloff>:/files/images/status/weather-overcast.svg</iconset>
    </property>
    <property name="text">
-    <string>Operator</string>
+    <string>Mission</string>
    </property>
    <property name="shortcut">
     <string>Meta+O</string>
@@ -338,7 +301,7 @@
      <normaloff>:/files/images/apps/utilities-system-monitor.svg</normaloff>:/files/images/apps/utilities-system-monitor.svg</iconset>
    </property>
    <property name="text">
-    <string>Engineer</string>
+    <string>Plot</string>
    </property>
    <property name="shortcut">
     <string>Meta+E</string>
@@ -368,7 +331,7 @@
     <string>Select Stylesheet</string>
    </property>
   </action>
-  <action name="actionPilotsView">
+  <action name="actionFlightView">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -377,7 +340,7 @@
      <normaloff>:/files/images/status/network-wireless-encrypted.svg</normaloff>:/files/images/status/network-wireless-encrypted.svg</iconset>
    </property>
    <property name="text">
-    <string>Pilot</string>
+    <string>Flight</string>
    </property>
    <property name="shortcut">
     <string>Meta+P</string>
@@ -486,6 +449,49 @@
    </property>
    <property name="toolTip">
     <string>Update the firmware of one of the connected autopilots</string>
+   </property>
+  </action>
+  <action name="actionSimulation_View">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../qgroundcontrol.qrc">
+     <normaloff>:/files/images/control/launch.svg</normaloff>:/files/images/control/launch.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Simulation</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the simulation view</string>
+   </property>
+  </action>
+  <action name="actionConfiguration_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../qgroundcontrol.qrc">
+     <normaloff>:/files/images/categories/preferences-system.svg</normaloff>:/files/images/categories/preferences-system.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Config</string>
+   </property>
+   <property name="toolTip">
+    <string>Configuration options of the vehicle.</string>
+   </property>
+  </action>
+  <action name="actionAdvanced_Mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Advanced Mode</string>
+   </property>
+  </action>
+  <action name="actionSimulationView">
+   <property name="text">
+    <string>Simulation</string>
    </property>
   </action>
  </widget>

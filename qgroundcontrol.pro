@@ -68,6 +68,7 @@ win32 {
 		system( cd $$(QTDIR)\\src\\activeqt && $$(QTDIR)\\bin\\qmake.exe )
 		system( cd $$(QTDIR)\\src\\activeqt\\container && $$(QTDIR)\\bin\\qmake.exe )
 		system( cd $$(QTDIR)\\src\\activeqt\\control && $$(QTDIR)\\bin\\qmake.exe )
+                system( cd $$(QTDIR)\\src\\activeqt && nmake )
 	}
 }
 
@@ -105,6 +106,8 @@ exists(user_config.pri) {
     message("----- USING CUSTOM USER QGROUNDCONTROL CONFIG FROM user_config.pri -----")
     message("Adding support for additional MAVLink messages for: " $$MAVLINK_CONF)
     message("------------------------------------------------------------------------")
+} else {
+    MAVLINK_CONF += ardupilotmega
 }
 INCLUDEPATH += $$MAVLINKPATH
 isEmpty(MAVLINK_CONF) { 
@@ -148,7 +151,6 @@ INCLUDEPATH += . \
     libs/thirdParty/qserialport/include/QtSerialPort \
     libs/thirdParty/qserialport/src \
     libs/qextserialport
-
 # Include serial port library (QSerial)
 include(qserialport.pri)
 
@@ -156,9 +158,7 @@ include(qserialport.pri)
 macx|macx-g++|macx-g++42::SOURCES += libs/qextserialport/qextserialenumerator_osx.cpp
 linux-g++::SOURCES += libs/qextserialport/qextserialenumerator_unix.cpp
 linux-g++-64::SOURCES += libs/qextserialport/qextserialenumerator_unix.cpp
-win32::SOURCES += libs/qextserialport/qextserialenumerator_win.cpp
-win32-msvc2008|win32-msvc2010::SOURCES += libs/qextserialport/qextserialenumerator_win.cpp
-
+win32-msvc2008|win32-msvc2010|win32-msvc2012::SOURCES += libs/qextserialport/qextserialenumerator_win.cpp
 # Input
 FORMS += src/ui/MainWindow.ui \
     src/ui/CommSettings.ui \
@@ -227,7 +227,15 @@ FORMS += src/ui/MainWindow.ui \
     src/ui/QGCHilConfiguration.ui \
     src/ui/QGCHilFlightGearConfiguration.ui \
     src/ui/QGCHilJSBSimConfiguration.ui \
-    src/ui/QGCHilXPlaneConfiguration.ui
+    src/ui/QGCHilXPlaneConfiguration.ui \
+    src/ui/designer/QGCComboBox.ui \
+    src/ui/designer/QGCTextLabel.ui \
+    src/ui/uas/UASQuickView.ui \
+    src/ui/uas/UASQuickViewItemSelect.ui \
+    src/ui/uas/UASActionsWidget.ui \
+    src/ui/QGCTabbedInfoView.ui \
+    src/ui/UASRawStatusView.ui \
+    src/ui/uas/QGCMessageView.ui
 INCLUDEPATH += src \
     src/ui \
     src/ui/linechart \
@@ -340,6 +348,7 @@ HEADERS += src/MG.h \
     libs/qextserialport/qextserialenumerator.h \
     src/QGCGeo.h \
     src/ui/QGCToolBar.h \
+    src/ui/QGCStatusBar.h \
     src/ui/QGCMAVLinkInspector.h \
     src/ui/MAVLinkDecoder.h \
     src/ui/WaypointViewOnlyView.h \
@@ -369,10 +378,25 @@ HEADERS += src/MG.h \
     src/ui/QGCHilConfiguration.h \
     src/ui/QGCHilFlightGearConfiguration.h \
     src/ui/QGCHilJSBSimConfiguration.h \
-    src/ui/QGCHilXPlaneConfiguration.h
+    src/ui/QGCHilXPlaneConfiguration.h \
+    src/ui/designer/QGCComboBox.h \
+    src/ui/designer/QGCTextLabel.h \
+    src/ui/submainwindow.h \
+    src/ui/dockwidgettitlebareventfilter.h \
+    src/ui/uas/UASQuickView.h \
+    src/ui/uas/UASQuickViewItem.h \
+    src/ui/uas/UASQuickViewItemSelect.h \
+    src/ui/uas/UASQuickViewTextItem.h \
+    src/ui/uas/UASQuickViewGaugeItem.h \
+    src/ui/uas/UASActionsWidget.h \
+    src/ui/designer/QGCRadioChannelDisplay.h \
+    src/ui/QGCTabbedInfoView.h \
+    src/ui/UASRawStatusView.h \
+    src/ui/PrimaryFlightDisplay.h \
+    src/ui/uas/QGCMessageView.h
 
 # Google Earth is only supported on Mac OS and Windows with Visual Studio Compiler
-macx|macx-g++|macx-g++42|win32-msvc2008|win32-msvc2010::HEADERS += src/ui/map3D/QGCGoogleEarthView.h
+macx|macx-g++|macx-g++42|win32-msvc2008|win32-msvc2010|win32-msvc2012::HEADERS += src/ui/map3D/QGCGoogleEarthView.h
 contains(DEPENDENCIES_PRESENT, osg) { 
     message("Including headers for OpenSceneGraph")
     
@@ -503,6 +527,7 @@ SOURCES += src/main.cc \
     src/ui/map/QGCMapTool.cc \
     src/ui/map/QGCMapToolBar.cc \
     src/ui/QGCToolBar.cc \
+    src/ui/QGCStatusBar.cc \
     src/ui/QGCMAVLinkInspector.cc \
     src/ui/MAVLinkDecoder.cc \
     src/ui/WaypointViewOnlyView.cc \
@@ -530,10 +555,25 @@ SOURCES += src/main.cc \
     src/ui/QGCHilConfiguration.cc \
     src/ui/QGCHilFlightGearConfiguration.cc \
     src/ui/QGCHilJSBSimConfiguration.cc \
-    src/ui/QGCHilXPlaneConfiguration.cc
+    src/ui/QGCHilXPlaneConfiguration.cc \
+    src/ui/designer/QGCComboBox.cc \
+    src/ui/designer/QGCTextLabel.cc \
+    src/ui/submainwindow.cpp \
+    src/ui/dockwidgettitlebareventfilter.cpp \
+    src/ui/uas/UASQuickViewItem.cc \
+    src/ui/uas/UASQuickView.cc \
+    src/ui/uas/UASQuickViewTextItem.cc \
+    src/ui/uas/UASQuickViewGaugeItem.cc \
+    src/ui/uas/UASQuickViewItemSelect.cc \
+    src/ui/uas/UASActionsWidget.cpp \
+    src/ui/designer/QGCRadioChannelDisplay.cpp \
+    src/ui/QGCTabbedInfoView.cpp \
+    src/ui/UASRawStatusView.cpp \
+    src/ui/PrimaryFlightDisplay.cpp \
+    src/ui/uas/QGCMessageView.cc
 
 # Enable Google Earth only on Mac OS and Windows with Visual Studio compiler
-macx|macx-g++|macx-g++42|win32-msvc2008|win32-msvc2010::SOURCES += src/ui/map3D/QGCGoogleEarthView.cc
+macx|macx-g++|macx-g++42|win32-msvc2008|win32-msvc2010|win32-msvc2012::SOURCES += src/ui/map3D/QGCGoogleEarthView.cc
 
 # Enable OSG only if it has been found
 contains(DEPENDENCIES_PRESENT, osg) { 
@@ -614,7 +654,7 @@ TRANSLATIONS += es-MX.ts \
 
 # xbee support
 # libxbee only supported by linux and windows systems
-win32-msvc2008|win32-msvc2010|linux {
+win32-msvc2008|win32-msvc2010|win32-msvc2012|linux {
     HEADERS += src/comm/XbeeLinkInterface.h \
         src/comm/XbeeLink.h \
         src/comm/HexSpinBox.h \
@@ -626,8 +666,7 @@ win32-msvc2008|win32-msvc2010|linux {
     DEFINES += XBEELINK
     INCLUDEPATH += libs/thirdParty/libxbee
 # TO DO: build library when it does not exist already
-    LIBS += -Llibs/thirdParty/libxbee/lib \
-        -llibxbee
+    LIBS += -llibs/thirdParty/libxbee/lib/libxbee
 }
 
 ###################################################################
@@ -650,7 +689,7 @@ linux-g++|linux-g++-64{
 
 # Support for Windows systems
 # You have to install the official 3DxWare driver for Windows to use the 3D mouse support on Windows systems!
-win32-msvc2008|win32-msvc2010 {
+win32-msvc2008|win32-msvc2010|win32-msvc2012 {
     message("Including support for 3DxWare for Windows system.")
     SOURCES  += libs/thirdParty/3DMouse/win/MouseParameters.cpp \
                 libs/thirdParty/3DMouse/win/Mouse3DInput.cpp \
@@ -664,3 +703,7 @@ win32-msvc2008|win32-msvc2010 {
 }
 
 unix:!macx:!symbian: LIBS += -losg
+
+OTHER_FILES += \
+    dongfang_notes.txt \
+    src/ui/dongfang-scrapyard.txt

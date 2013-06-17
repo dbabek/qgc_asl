@@ -13,6 +13,9 @@ QGCCommandButton::QGCCommandButton(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    responsecount = 0;
+    responsenum = 0;
+
     connect(ui->commandButton, SIGNAL(clicked()), this, SLOT(sendCommand()));
     connect(ui->editFinishButton, SIGNAL(clicked()), this, SLOT(endEditMode()));
     connect(ui->editButtonName, SIGNAL(textChanged(QString)), this, SLOT(setCommandButtonName(QString)));
@@ -95,6 +98,29 @@ void QGCCommandButton::sendCommand()
 {
     if (QGCToolWidgetItem::uas)
     {
+        if (responsenum != 0)
+        {
+            if (responsecount == 0)
+            {
+                //We're finished. Reset.
+                qDebug() << "Finished sequence";
+                QGCToolWidgetItem::uas->executeCommandAck(responsenum-responsecount,true);
+                responsecount = responsenum;
+                return;
+            }
+            if (responsecount < responsenum)
+            {
+                qDebug() << responsecount << responsenum;
+                QGCToolWidgetItem::uas->executeCommandAck(responsenum-responsecount,true);
+                responsecount--;
+                return;
+            }
+            else
+            {
+                qDebug() << "No sequence yet, sending command";
+                responsecount--;
+            }
+        }
         // Check if command text is a number
         bool ok;
         int index = 0;
@@ -116,9 +142,12 @@ void QGCCommandButton::sendCommand()
                 float param6 = ui->editParam6SpinBox->value();
                 float param7 = ui->editParam7SpinBox->value();
                 int component = ui->editComponentSpinBox->value();
-
+                if (showlabelname != "")
+                {
+                    emit showLabel(showlabelname,index);
+                }
                 QGCToolWidgetItem::uas->executeCommand(command, confirm, param1, param2, param3, param4, param5, param6, param7, component);
-                qDebug() << __FILE__ << __LINE__ << "SENDING COMMAND" << index;
+                //qDebug() << __FILE__ << __LINE__ << "SENDING COMMAND" << index;
             }
         }
     }
@@ -226,7 +255,7 @@ void QGCCommandButton::endEditMode()
 
 void QGCCommandButton::writeSettings(QSettings& settings)
 {
-    qDebug() << "COMMAND BUTTON WRITING SETTINGS";
+    //qDebug() << "COMMAND BUTTON WRITING SETTINGS";
     settings.setValue("TYPE", "COMMANDBUTTON");
     settings.setValue("QGC_COMMAND_BUTTON_DESCRIPTION", ui->nameLabel->text());
     settings.setValue("QGC_COMMAND_BUTTON_BUTTONTEXT", ui->commandButton->text());
@@ -241,7 +270,61 @@ void QGCCommandButton::writeSettings(QSettings& settings)
     settings.setValue("QGC_COMMAND_BUTTON_PARAM7",  ui->editParam7SpinBox->value());
     settings.sync();
 }
+void QGCCommandButton::readSettings(const QString& pre,const QVariantMap& settings)
+{
+    ui->editButtonName->setText(settings.value(pre + "QGC_COMMAND_BUTTON_BUTTONTEXT", "UNKNOWN").toString());
+    ui->editCommandComboBox->setCurrentIndex(settings.value(pre + "QGC_COMMAND_BUTTON_COMMANDID", 0).toInt());
+    ui->commandButton->setText(settings.value(pre + "QGC_COMMAND_BUTTON_BUTTONTEXT", "UNKNOWN").toString());
 
+    int commandId = settings.value(pre + "QGC_COMMAND_BUTTON_COMMANDID", 0).toInt();
+
+    ui->editParam1SpinBox->setValue(settings.value(pre + "QGC_COMMAND_BUTTON_PARAM1", 0.0).toDouble());
+    ui->editParam2SpinBox->setValue(settings.value(pre + "QGC_COMMAND_BUTTON_PARAM2", 0.0).toDouble());
+    ui->editParam3SpinBox->setValue(settings.value(pre + "QGC_COMMAND_BUTTON_PARAM3", 0.0).toDouble());
+    ui->editParam4SpinBox->setValue(settings.value(pre + "QGC_COMMAND_BUTTON_PARAM4", 0.0).toDouble());
+    ui->editParam5SpinBox->setValue(settings.value(pre + "QGC_COMMAND_BUTTON_PARAM5", 0.0).toDouble());
+    ui->editParam6SpinBox->setValue(settings.value(pre + "QGC_COMMAND_BUTTON_PARAM6", 0.0).toDouble());
+    ui->editParam7SpinBox->setValue(settings.value(pre + "QGC_COMMAND_BUTTON_PARAM7", 0.0).toDouble());
+
+    ui->editCommandComboBox->setCurrentIndex(0);
+
+    // Find combobox entry for this data
+    for (int i = 0; i < ui->editCommandComboBox->count(); ++i)
+    {
+        if (commandId == ui->editCommandComboBox->itemData(i).toInt())
+        {
+            ui->editCommandComboBox->setCurrentIndex(i);
+        }
+    }
+
+    ui->editParamsVisibleCheckBox->setChecked(settings.value(pre + "QGC_COMMAND_BUTTON_PARAMS_VISIBLE").toBool());
+    if (ui->editParamsVisibleCheckBox->isChecked())
+    {
+        ui->editParam1SpinBox->show();
+        ui->editParam2SpinBox->show();
+        ui->editParam3SpinBox->show();
+        ui->editParam4SpinBox->show();
+        ui->editParam5SpinBox->show();
+        ui->editParam6SpinBox->show();
+        ui->editParam7SpinBox->show();
+    }
+    else
+    {
+        ui->editParam1SpinBox->hide();
+        ui->editParam2SpinBox->hide();
+        ui->editParam3SpinBox->hide();
+        ui->editParam4SpinBox->hide();
+        ui->editParam5SpinBox->hide();
+        ui->editParam6SpinBox->hide();
+        ui->editParam7SpinBox->hide();
+    }
+
+    ui->editNameLabel->setText(settings.value(pre + "QGC_COMMAND_BUTTON_DESCRIPTION", "ERROR LOADING BUTTON").toString());
+    ui->nameLabel->setText(settings.value(pre + "QGC_COMMAND_BUTTON_DESCRIPTION", "ERROR LOADING BUTTON").toString());
+
+    responsenum = settings.value(pre + "QGC_COMMAND_BUTTON_RESPONSE",0).toInt();
+    responsecount = responsenum;
+}
 void QGCCommandButton::readSettings(const QSettings& settings)
 {
     ui->editButtonName->setText(settings.value("QGC_COMMAND_BUTTON_BUTTONTEXT", "UNKNOWN").toString());
@@ -257,6 +340,8 @@ void QGCCommandButton::readSettings(const QSettings& settings)
     ui->editParam5SpinBox->setValue(settings.value("QGC_COMMAND_BUTTON_PARAM5", 0.0).toDouble());
     ui->editParam6SpinBox->setValue(settings.value("QGC_COMMAND_BUTTON_PARAM6", 0.0).toDouble());
     ui->editParam7SpinBox->setValue(settings.value("QGC_COMMAND_BUTTON_PARAM7", 0.0).toDouble());
+
+    showlabelname = settings.value("QGC_COMMAND_BUTTON_LABEL","").toString();
 
     ui->editCommandComboBox->setCurrentIndex(0);
 
@@ -293,4 +378,6 @@ void QGCCommandButton::readSettings(const QSettings& settings)
 
     ui->editNameLabel->setText(settings.value("QGC_COMMAND_BUTTON_DESCRIPTION", "ERROR LOADING BUTTON").toString());
     ui->nameLabel->setText(settings.value("QGC_COMMAND_BUTTON_DESCRIPTION", "ERROR LOADING BUTTON").toString());
+    responsenum = settings.value("QGC_COMMAND_BUTTON_RESPONSE",0).toInt();
+    responsecount = responsenum;
 }

@@ -39,12 +39,19 @@ class QGCToolBar : public QToolBar
 
 public:
     explicit QGCToolBar(QWidget* parent = 0);
-    void addPerspectiveChangeAction(QAction* action);
+    void setPerspectiveChangeActions(const QList<QAction*> &action);
+    void setPerspectiveChangeAdvancedActions(const QList<QAction*> &action);
     ~QGCToolBar();
 
 public slots:
     /** @brief Set the system that is currently displayed by this widget */
     void setActiveUAS(UASInterface* active);
+    /** @brief Set the link which is currently handled with connecting / disconnecting */
+    void addLink(LinkInterface* link);
+    /** @brief Remove link which is currently handled */
+    void removeLink(LinkInterface* link);
+    /** @brief Update the link state */
+    void updateLinkState(bool connected);
     /** @brief Set the system state */
     void updateState(UASInterface* system, QString name, QString description);
     /** @brief Set the system mode */
@@ -55,14 +62,8 @@ public slots:
     void setSystemType(UASInterface* uas, unsigned int systemType);
     /** @brief Received system text message */
     void receiveTextMessage(int uasid, int componentid, int severity, QString text);
-    /** @brief Start / stop logging */
-    void logging(bool checked);
-    /** @brief Start playing logfile */
-    void playLogFile(bool checked);
-    /** @brief Set log playing component */
-    void setLogPlayer(QGCMAVLinkLogPlayer* player);
     /** @brief Update battery charge state */
-    void updateBatteryRemaining(UASInterface* uas, double voltage, double percent, int seconds);
+    void updateBatteryRemaining(UASInterface* uas, double voltage, double current, double percent, int seconds);
     /** @brief Update current waypoint */
     void updateCurrentWaypoint(quint16 id);
     /** @brief Update distance to current waypoint */
@@ -73,16 +74,21 @@ public slots:
     void updateView();
     /** @brief Update connection timeout time */
     void heartbeatTimeout(bool timeout, unsigned int ms);
+    /** @brief Update global position */
+    void globalPositionChanged(UASInterface* uas, double lat, double lon, double alt, quint64 usec);
     /** @brief Create or connect link */
     void connectLink(bool connect);
     /** @brief Clear status string */
     void clearStatusString();
+    /** @brief Set an activity action as checked in menu */
+    void advancedActivityTriggered(QAction* action);
 
 protected:
     void createCustomWidgets();
+    void storeSettings();
+    void loadSettings();
+    void createUI();
 
-    QAction* toggleLoggingAction;
-    QAction* logReplayAction;
     UASInterface* mav;
     QToolButton* symbolButton;
     QLabel* toolBarNameLabel;
@@ -102,6 +108,8 @@ protected:
     float batteryVoltage;
     int wpId;
     double wpDistance;
+    float altitudeMSL;
+    float altitudeRel;
     QString state;
     QString mode;
     QString systemName;
@@ -109,6 +117,10 @@ protected:
     quint64 lastSystemMessageTimeMs;
     QTimer updateViewTimer;
     bool systemArmed;
+    LinkInterface* currentLink;
+    QAction* firstAction;
+    QPushButton *advancedButton;
+    QButtonGroup *group;
 };
 
 #endif // QGCTOOLBAR_H

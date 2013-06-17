@@ -62,6 +62,18 @@ CommConfigurationWindow::CommConfigurationWindow(LinkInterface* link, ProtocolIn
     // Setup the user interface according to link type
     ui.setupUi(this);
 
+    // Initialize basic ui state
+
+    // Do not allow changes here unless advanced is checked
+    ui.connectionType->setEnabled(false);
+    ui.linkType->setEnabled(false);
+    ui.protocolGroupBox->setVisible(false);
+
+    // Connect UI element visibility to checkbox
+    connect(ui.advancedOptionsCheckBox, SIGNAL(clicked(bool)), ui.connectionType, SLOT(setEnabled(bool)));
+    connect(ui.advancedOptionsCheckBox, SIGNAL(clicked(bool)), ui.linkType, SLOT(setEnabled(bool)));
+    connect(ui.advancedOptionsCheckBox, SIGNAL(clicked(bool)), ui.protocolGroupBox, SLOT(setVisible(bool)));
+
     // add link types
     ui.linkType->addItem(tr("Serial"), QGC_LINK_SERIAL);
     ui.linkType->addItem(tr("UDP"), QGC_LINK_UDP);
@@ -274,6 +286,10 @@ void CommConfigurationWindow::setConnection()
 {
     if(!link->isConnected()) {
         link->connect();
+        QGC::SLEEP::msleep(100);
+        if (link->isConnected())
+            // Auto-close window on connect
+            this->window()->close();
     } else {
         link->disconnect();
     }

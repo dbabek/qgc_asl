@@ -28,12 +28,37 @@ This file is part of the QGROUNDCONTROL project
 
 #include "ArduPilotMegaMAV.h"
 
+#ifndef MAVLINK_MSG_ID_MOUNT_CONFIGURE
+#include "ardupilotmega/mavlink_msg_mount_configure.h"
+#endif
+
+#ifndef MAVLINK_MSG_ID_MOUNT_CONTROL
+#include "ardupilotmega/mavlink_msg_mount_control.h"
+#endif
+
 ArduPilotMegaMAV::ArduPilotMegaMAV(MAVLinkProtocol* mavlink, int id) :
     UAS(mavlink, id)//,
     // place other initializers here
 {
+    //This does not seem to work. Manually request each stream type at a specified rate.
     // Ask for all streams at 4 Hz
-    enableAllDataTransmission(4);
+    //enableAllDataTransmission(4);
+    txReqTimer = new QTimer(this);
+    connect(txReqTimer,SIGNAL(timeout()),this,SLOT(sendTxRequests()));
+
+    QTimer::singleShot(5000,this,SLOT(sendTxRequests())); //Send an initial TX request in 5 seconds.
+
+    txReqTimer->start(300000); //Resend the TX requests every 5 minutes.
+}
+void ArduPilotMegaMAV::sendTxRequests()
+{
+    enableExtendedSystemStatusTransmission(2);
+    enablePositionTransmission(3);
+    enableExtra1Transmission(10);
+    enableExtra2Transmission(10);
+    enableExtra3Transmission(2);
+    enableRawSensorDataTransmission(2);
+    enableRCChannelDataTransmission(2);
 }
 
 /**
@@ -62,4 +87,24 @@ void ArduPilotMegaMAV::receiveMessage(LinkInterface* link, mavlink_message_t mes
             break;
         }
     }
+}
+void ArduPilotMegaMAV::setMountConfigure(unsigned char mode, bool stabilize_roll,bool stabilize_pitch,bool stabilize_yaw)
+{
+    //Only supported by APM
+    mavlink_message_t msg;
+    mavlink_msg_mount_configure_pack(255,1,&msg,this->uasId,1,mode,stabilize_roll,stabilize_pitch,stabilize_yaw);
+    sendMessage(msg);
+}
+void ArduPilotMegaMAV::setMountControl(double pa,double pb,double pc,bool islatlong)
+{
+    mavlink_message_t msg;
+    if (islatlong)
+    {
+        mavlink_msg_mount_control_pack(255,1,&msg,this->uasId,1,pa*10000000.0,pb*10000000.0,pc*10000000.0,0);
+    }
+    else
+    {
+        mavlink_msg_mount_control_pack(255,1,&msg,this->uasId,1,pa,pb,pc,0);
+    }
+    sendMessage(msg);
 }

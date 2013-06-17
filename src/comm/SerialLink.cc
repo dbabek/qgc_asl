@@ -20,7 +20,6 @@
 #ifdef _WIN32
 #include "windows.h"
 #endif
-
 #ifdef _WIN32
 #include <qextserialenumerator.h>
 #endif
@@ -213,7 +212,8 @@ SerialLink::SerialLink(QString portname, int baudRate, bool hardwareFlowControl,
                        int dataBits, int stopBits) :
     port(NULL),
     ports(new QVector<QString>()),
-    m_stopp(false)
+    m_stopp(false),
+    bytesRead(0)
 {
     // Setup settings
     this->porthandle = portname.trimmed();
@@ -393,9 +393,21 @@ void SerialLink::writeSettings()
 void SerialLink::run()
 {
     // Initialize the connection
-    hardwareConnect();
+    if (!hardwareConnect())
+    {
+        //Need to error out here.
+        emit communicationError(getName(),"Error connecting: " + port->errorString());
+        return;
+
+    }
 
     // Qt way to make clear what a while(1) loop does
+    quint64 msecs = QDateTime::currentMSecsSinceEpoch();
+    quint64 initialmsecs = QDateTime::currentMSecsSinceEpoch();
+    quint64 bytes = 0;
+    bool triedreset = false;
+    bool triedDTR = false;
+    int timeout = 5000;
     forever
     {
         {
@@ -408,6 +420,49 @@ void SerialLink::run()
         }
         // Check if new bytes have arrived, if yes, emit the notification signal
         checkForBytes();
+        if (bytes != bytesRead)
+        {
+            bytes = bytesRead;
+            msecs = QDateTime::currentMSecsSinceEpoch();
+        }
+        else
+        {
+            if (QDateTime::currentMSecsSinceEpoch() - msecs > timeout)
+            {
+                //It's been 10 seconds since the last data came in. Reset and try again
+                msecs = QDateTime::currentMSecsSinceEpoch();
+                if (msecs - initialmsecs > 25000)
+                {
+                    //After initial 25 seconds, timeouts are increased to 30 seconds.
+                    //This prevents temporary silences from things like calibration commands
+                    //from screwing things up. In all reality, timeouts should be enabled/disabled
+                    //for events like that on a case by case basis.
+                    //TODO ^^
+                    timeout = 30000;
+                }
+                if (!triedDTR && triedreset)
+                {
+                    triedDTR = true;
+                    communicationUpdate(getName(),"No data to receive on COM port. Attempting to reset via DTR signal");
+                    qDebug() << "No data!!! Attempting reset via DTR.";
+                    port->setDtr(true);
+                    this->msleep(250);
+                    port->setDtr(false);
+                }
+                else if (!triedreset)
+                {
+                    qDebug() << "No data!!! Attempting reset via reboot command.";
+                    communicationUpdate(getName(),"No data to receive on COM port. Assuming possible terminal mode, attempting to reset via \"reboot\" command");
+                    port->write("reboot\r\n",8);
+                    triedreset = true;
+                }
+                else
+                {
+                    communicationUpdate(getName(),"No data to receive on COM port....");
+                    qDebug() << "No data!!!";
+                }
+            }
+        }
         /* Serial data isn't arriving that fast normally, this saves the thread
                  * from consuming too much processing time
                  */
@@ -435,6 +490,7 @@ void SerialLink::checkForBytes()
         if(available > 0)
         {
             readBytes();
+            bytesRead += available;
         }
         else if (available < 0) {
             /* Error, close port */
@@ -613,7 +669,14 @@ bool SerialLink::hardwareConnect()
     port->setCommTimeouts(QSerialPort::CtScheme_NonBlockingRead);
     connectionStartTime = MG::TIME::getGroundTimeNow();
 
-    port->open();
+    if (!port->open())
+    {
+        emit communicationUpdate(getName(),"Error opening port: " + port->errorString());
+    }
+    else
+    {
+        emit communicationUpdate(getName(),"Opened port!");
+    }
 
     bool connectionUp = isConnected();
     if(connectionUp) {

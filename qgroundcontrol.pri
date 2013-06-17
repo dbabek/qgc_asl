@@ -19,7 +19,7 @@
 
 message(Qt version $$[QT_VERSION])
 
-win32-msvc2008|win32-msvc2010 {
+win32-msvc2008|win32-msvc2010|win32-msvc2012 {
 	QMAKE_POST_LINK += $$quote(echo "Copying files"$$escape_expand(\\n))
 } else {
 	QMAKE_POST_LINK += $$quote(echo "Copying files")
@@ -261,7 +261,7 @@ linux-g++-64 {
 }
 
 # Windows (32bit), Visual Studio
-win32-msvc2008|win32-msvc2010 {
+win32-msvc2008|win32-msvc2010|win32-msvc2012 {
 
 	win32-msvc2008 {
 		message(Building for Windows Visual Studio 2008 (32bit))
@@ -301,7 +301,8 @@ win32-msvc2008|win32-msvc2010 {
 
 	INCLUDEPATH += $$BASEDIR/libs/lib/sdl/msvc/include \
         $$BASEDIR/libs/lib/opal/include \
-        $$BASEDIR/libs/lib/msinttypes
+        $$BASEDIR/libs/lib/msinttypes \
+        $$(QTDIR)/src/activeqt/shared
 
 	LIBS += -L$$BASEDIR/libs/lib/sdl/msvc/lib \
         -lSDLmain -lSDL \

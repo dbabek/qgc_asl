@@ -5,10 +5,10 @@
 #include "MAV2DIcon.h"
 #include "Waypoint2DIcon.h"
 #include "UASWaypointManager.h"
+#include "ArduPilotMegaMAV.h"
 
 QGCMapWidget::QGCMapWidget(QWidget *parent) :
     mapcontrol::OPMapWidget(parent),
-    currWPManager(NULL),
     firingWaypointChange(NULL),
     maxUpdateInterval(2.1f), // 2 seconds
     followUAVEnabled(false),
@@ -16,10 +16,104 @@ QGCMapWidget::QGCMapWidget(QWidget *parent) :
     trailInterval(2.0f),
     followUAVID(0),
     mapInitialized(false),
-    homeAltitude(0)
+    homeAltitude(0),
+    uas(NULL)
 {
+    currWPManager = UASManager::instance()->getActiveUASWaypointManager();
+    waypointLines.insert(0, new QGraphicsItemGroup(map));
+    connect(currWPManager, SIGNAL(waypointEditableListChanged(int)), this, SLOT(updateWaypointList(int)));
+    connect(currWPManager, SIGNAL(waypointEditableChanged(int, Waypoint*)), this, SLOT(updateWaypoint(int,Waypoint*)));
+    connect(this, SIGNAL(waypointCreated(Waypoint*)), currWPManager, SLOT(addWaypointEditable(Waypoint*)));
+    connect(this, SIGNAL(waypointChanged(Waypoint*)), currWPManager, SLOT(notifyOfChangeEditable(Waypoint*)));
+    offlineMode = true;
     // Widget is inactive until shown
+    defaultGuidedAlt = -1;
     loadSettings(false);
+
+    this->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    QAction *guidedaction = new QAction(this);
+    guidedaction->setText("Go To Here (Guided Mode)");
+    connect(guidedaction,SIGNAL(triggered()),this,SLOT(guidedActionTriggered()));
+    this->addAction(guidedaction);
+    guidedaction = new QAction(this);
+    guidedaction->setText("Go To Here Alt (Guided Mode)");
+    connect(guidedaction,SIGNAL(triggered()),this,SLOT(guidedAltActionTriggered()));
+    this->addAction(guidedaction);
+    QAction *cameraaction = new QAction(this);
+    cameraaction->setText("Point Camera Here");
+    connect(cameraaction,SIGNAL(triggered()),this,SLOT(cameraActionTriggered()));
+    this->addAction(cameraaction);
+}
+void QGCMapWidget::guidedActionTriggered()
+{
+    if (!uas)
+    {
+        QMessageBox::information(0,"Error","Please connect first");
+        return;
+    }
+    if (currWPManager)
+    {
+        if (defaultGuidedAlt == -1)
+        {
+            if (!guidedAltActionTriggered())
+            {
+                return;
+            }
+        }
+        // Create new waypoint and send it to the WPManager to send out.
+        internals::PointLatLng pos = map->FromLocalToLatLng(mousePressPos.x(), mousePressPos.y());
+        qDebug() << "Guided action requested. Lat:" << pos.Lat() << "Lon:" << pos.Lng();
+        Waypoint wp;
+        wp.setLatitude(pos.Lat());
+        wp.setLongitude(pos.Lng());
+        wp.setAltitude(defaultGuidedAlt);
+        currWPManager->goToWaypoint(&wp);
+    }
+}
+bool QGCMapWidget::guidedAltActionTriggered()
+{
+    if (!uas)
+    {
+        QMessageBox::information(0,"Error","Please connect first");
+        return false;
+    }
+    bool ok = false;
+    int tmpalt = QInputDialog::getInt(this,"Altitude","Enter default altitude (in meters) of destination point for guided mode",100,0,30000,1,&ok);
+    if (!ok)
+    {
+        //Use has chosen cancel. Do not send the waypoint
+        return false;
+    }
+    defaultGuidedAlt = tmpalt;
+    guidedActionTriggered();
+    return true;
+}
+void QGCMapWidget::cameraActionTriggered()
+{
+    if (!uas)
+    {
+        QMessageBox::information(0,"Error","Please connect first");
+        return;
+    }
+    ArduPilotMegaMAV *newmav = qobject_cast<ArduPilotMegaMAV*>(this->uas);
+    if (newmav)
+    {
+        newmav->setMountConfigure(4,true,true,true);
+        internals::PointLatLng pos = map->FromLocalToLatLng(mousePressPos.x(), mousePressPos.y());
+        newmav->setMountControl(pos.Lat(),pos.Lng(),100,true);
+    }
+}
+
+void QGCMapWidget::mousePressEvent(QMouseEvent *event)
+{
+    mapcontrol::OPMapWidget::mousePressEvent(event);
+}
+
+void QGCMapWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    mousePressPos = event->pos();
+    mapcontrol::OPMapWidget::mouseReleaseEvent(event);
 }
 
 QGCMapWidget::~QGCMapWidget()
@@ -55,8 +149,8 @@ void QGCMapWidget::showEvent(QShowEvent* event)
         SetFollowMouse(true);				    // we want a contiuous mouse position reading
 
         SetShowHome(true);					    // display the HOME position on the map
-        Home->SetSafeArea(30);                         // set radius (meters)
-        Home->SetShowSafeArea(true);                                         // show the safe area
+        Home->SetSafeArea(0);                         // set radius (meters)
+        Home->SetShowSafeArea(false);                                         // show the safe area
         Home->SetCoord(pos_lat_lon);             // set the HOME position
 
         setFrameStyle(QFrame::NoFrame);      // no border frame
@@ -113,6 +207,22 @@ void QGCMapWidget::loadSettings(bool changePosition)
     trailInterval = settings.value("TRAIL_INTERVAL", trailInterval).toFloat();
     settings.endGroup();
 
+    // SET CORRECT MENU CHECKBOXES
+    // Set the correct trail interval
+    if (trailType == mapcontrol::UAVTrailType::ByDistance)
+    {
+        // XXX
+#ifdef Q_OS_WIN
+#pragma message ("WARNING: Settings loading for trail type not implemented")
+#else
+#warning Settings loading for trail type not implemented
+#endif
+    }
+    else if (trailType == mapcontrol::UAVTrailType::ByTimeElapsed)
+    {
+        // XXX
+    }
+
     // SET TRAIL TYPE
     foreach (mapcontrol::UAVItem* uav, GetUAVS())
     {
@@ -151,25 +261,22 @@ void QGCMapWidget::storeSettings()
 
 void QGCMapWidget::mouseDoubleClickEvent(QMouseEvent* event)
 {
-
-    // FIXME HACK!
-    //if (currEditMode == EDIT_MODE_WAYPOINTS)
+    // If a waypoint manager is available
+    if (currWPManager)
     {
-        // If a waypoint manager is available
-        if (currWPManager)
-        {
-            // Create new waypoint
-            internals::PointLatLng pos = map->FromLocalToLatLng(event->pos().x(), event->pos().y());
-            Waypoint* wp = currWPManager->createWaypoint();
-            //            wp->blockSignals(true);
-            //            wp->setFrame(MAV_FRAME_GLOBAL_RELATIVE_ALT);
-            wp->setLatitude(pos.Lat());
-            wp->setLongitude(pos.Lng());
-            wp->setAltitude(0);
-            //            wp->blockSignals(false);
-            //            currWPManager->notifyOfChangeEditable(wp);
-        }
+        // Create new waypoint
+        internals::PointLatLng pos = map->FromLocalToLatLng(event->pos().x(), event->pos().y());
+        Waypoint* wp = currWPManager->createWaypoint();
+        //            wp->blockSignals(true);
+        //            wp->setFrame(MAV_FRAME_GLOBAL_RELATIVE_ALT);
+        wp->setLatitude(pos.Lat());
+        wp->setLongitude(pos.Lng());
+        wp->setFrame((MAV_FRAME)currWPManager->getFrameRecommendation());
+        wp->setAltitude(currWPManager->getAltitudeRecommendation());
+        //            wp->blockSignals(false);
+        //            currWPManager->notifyOfChangeEditable(wp);
     }
+
     OPMapWidget::mouseDoubleClickEvent(event);
 }
 
@@ -182,12 +289,21 @@ void QGCMapWidget::addUAS(UASInterface* uas)
 {
     connect(uas, SIGNAL(globalPositionChanged(UASInterface*,double,double,double,quint64)), this, SLOT(updateGlobalPosition(UASInterface*,double,double,double,quint64)));
     connect(uas, SIGNAL(systemSpecsChanged(int)), this, SLOT(updateSystemSpecs(int)));
+    if (!waypointLines.value(uas->getUASID(), NULL)) {
+        waypointLines.insert(uas->getUASID(), new QGraphicsItemGroup(map));
+    } else {
+        foreach (QGraphicsItem* item, waypointLines.value(uas->getUASID())->childItems())
+        {
+            delete item;
+        }
+    }
 }
 
 void QGCMapWidget::activeUASSet(UASInterface* uas)
 {
     // Only execute if proper UAS is set
     if (!uas) return;
+    this->uas = uas;
 
     // Disconnect old MAV manager
     if (currWPManager)
@@ -199,22 +315,17 @@ void QGCMapWidget::activeUASSet(UASInterface* uas)
         disconnect(this, SIGNAL(waypointChanged(Waypoint*)), currWPManager, SLOT(notifyOfChangeEditable(Waypoint*)));
     }
 
-    if (uas)
-    {
-        currWPManager = uas->getWaypointManager();
+    currWPManager = uas->getWaypointManager();
 
-        // Connect the waypoint manager / data storage to the UI
-        connect(currWPManager, SIGNAL(waypointEditableListChanged(int)), this, SLOT(updateWaypointList(int)));
-        connect(currWPManager, SIGNAL(waypointEditableChanged(int, Waypoint*)), this, SLOT(updateWaypoint(int,Waypoint*)));
-        connect(this, SIGNAL(waypointCreated(Waypoint*)), currWPManager, SLOT(addWaypointEditable(Waypoint*)));
-        connect(this, SIGNAL(waypointChanged(Waypoint*)), currWPManager, SLOT(notifyOfChangeEditable(Waypoint*)));
+    updateSelectedSystem(uas->getUASID());
+    followUAVID = uas->getUASID();
+    updateWaypointList(uas->getUASID());
 
-        updateSelectedSystem(uas->getUASID());
-        followUAVID = uas->getUASID();
-
-        // Delete all waypoints and add waypoint from new system
-        updateWaypointList(uas->getUASID());
-    }
+    // Connect the waypoint manager / data storage to the UI
+    connect(currWPManager, SIGNAL(waypointEditableListChanged(int)), this, SLOT(updateWaypointList(int)));
+    connect(currWPManager, SIGNAL(waypointEditableChanged(int, Waypoint*)), this, SLOT(updateWaypoint(int,Waypoint*)));
+    connect(this, SIGNAL(waypointCreated(Waypoint*)), currWPManager, SLOT(addWaypointEditable(Waypoint*)));
+    connect(this, SIGNAL(waypointChanged(Waypoint*)), currWPManager, SLOT(notifyOfChangeEditable(Waypoint*)));
 }
 
 /**
@@ -242,9 +353,17 @@ void QGCMapWidget::updateGlobalPosition(UASInterface* uas, double lat, double lo
             newUAV->setParentItem(map);
             UAVS.insert(uas->getUASID(), newUAV);
             uav = GetUAV(uas->getUASID());
-            uav->SetTrailTime(1);
-            uav->SetTrailDistance(5);
-            uav->SetTrailType(mapcontrol::UAVTrailType::ByTimeElapsed);
+            // Set the correct trail type
+            uav->SetTrailType(trailType);
+            // Set the correct trail interval
+            if (trailType == mapcontrol::UAVTrailType::ByDistance)
+            {
+                uav->SetTrailDistance(trailInterval);
+            }
+            else if (trailType == mapcontrol::UAVTrailType::ByTimeElapsed)
+            {
+                uav->SetTrailTime(trailInterval);
+            }
         }
 
         // Set new lat/lon position of UAV icon
@@ -433,6 +552,11 @@ void QGCMapWidget::handleMapWaypointEdit(mapcontrol::WayPointItem* waypoint)
 {
     // Block circle updates
     Waypoint* wp = iconsToWaypoints.value(waypoint, NULL);
+
+    // Delete UI element if wp doesn't exist
+    if (!wp)
+        WPDelete(waypoint);
+
     // Protect from vicious double update cycle
     if (firingWaypointChange == wp) return;
     // Not in cycle, block now from entering it
@@ -447,8 +571,8 @@ void QGCMapWidget::handleMapWaypointEdit(mapcontrol::WayPointItem* waypoint)
     wp->setLatitude(pos.Lat());
     wp->setLongitude(pos.Lng());
     // XXX Magic values
-    wp->setAltitude(homeAltitude + 50.0f);
-    wp->setAcceptanceRadius(10.0f);
+//    wp->setAltitude(homeAltitude + 50.0f);
+//    wp->setAcceptanceRadius(10.0f);
     wp->blockSignals(false);
 
 
@@ -471,13 +595,15 @@ void QGCMapWidget::handleMapWaypointEdit(mapcontrol::WayPointItem* waypoint)
  */
 void QGCMapWidget::updateWaypoint(int uas, Waypoint* wp)
 {
-    qDebug() << "UPDATING WP FUNCTION CALLED";
+    qDebug() << __FILE__ << __LINE__ << "UPDATING WP FUNCTION CALLED";
     // Source of the event was in this widget, do nothing
-    if (firingWaypointChange == wp) return;
+    if (firingWaypointChange == wp) {
+        return;
+    }
     // Currently only accept waypoint updates from the UAS in focus
     // this has to be changed to accept read-only updates from other systems as well.
     UASInterface* uasInstance = UASManager::instance()->getUASForId(uas);
-    if (uasInstance->getWaypointManager() == currWPManager || uas == -1)
+    if (currWPManager)
     {
         // Only accept waypoints in global coordinate frame
         if (((wp->getFrame() == MAV_FRAME_GLOBAL) || (wp->getFrame() == MAV_FRAME_GLOBAL_RELATIVE_ALT)) && wp->isNavigationType())
@@ -489,7 +615,7 @@ void QGCMapWidget::updateWaypoint(int uas, Waypoint* wp)
             // as we're only handling global waypoints
             int wpindex = currWPManager->getGlobalFrameAndNavTypeIndexOf(wp);
             // If not found, return (this should never happen, but helps safety)
-            if (wpindex == -1) return;
+            if (wpindex < 0) return;
             // Mark this wp as currently edited
             firingWaypointChange = wp;
 
@@ -512,7 +638,7 @@ void QGCMapWidget::updateWaypoint(int uas, Waypoint* wp)
                 if (wpindex > 0)
                 {
                     // Get predecessor of this WP
-                    QVector<Waypoint* > wps = currWPManager->getGlobalFrameAndNavTypeWaypointList();
+                    QList<Waypoint* > wps = currWPManager->getGlobalFrameAndNavTypeWaypointList();
                     Waypoint* wp1 = wps.at(wpindex-1);
                     mapcontrol::WayPointItem* prevIcon = waypointsToIcons.value(wp1, NULL);
                     // If we got a valid graphics item, continue
@@ -568,7 +694,7 @@ void QGCMapWidget::updateWaypoint(int uas, Waypoint* wp)
             // waypoint list. This implies that the coordinate frame of this
             // waypoint was changed and the list containing only global
             // waypoints was shortened. Thus update the whole list
-            if (waypointsToIcons.size() > currWPManager->getGlobalFrameAndNavTypeCount())
+            if (waypointsToIcons.count() > currWPManager->getGlobalFrameAndNavTypeCount())
             {
                 updateWaypointList(uas);
             }
@@ -587,16 +713,26 @@ void QGCMapWidget::updateWaypointList(int uas)
     // Currently only accept waypoint updates from the UAS in focus
     // this has to be changed to accept read-only updates from other systems as well.
     UASInterface* uasInstance = UASManager::instance()->getUASForId(uas);
-    if ((uasInstance && (uasInstance->getWaypointManager() == currWPManager)) || uas == -1)
+    if (currWPManager)
     {
         // ORDER MATTERS HERE!
         // TWO LOOPS ARE NEEDED - INFINITY LOOP ELSE
 
         qDebug() << "DELETING NOW OLD WPS";
 
+        // Delete connecting waypoint lines
+        QGraphicsItemGroup* group = waypointLines.value(uas, NULL);
+        if (group)
+        {
+            foreach (QGraphicsItem* item, group->childItems())
+            {
+                delete item;
+            }
+        }
+
         // Delete first all old waypoints
         // this is suboptimal (quadratic, but wps should stay in the sub-100 range anyway)
-        QVector<Waypoint* > wps = currWPManager->getGlobalFrameAndNavTypeWaypointList();
+        QList<Waypoint* > wps = currWPManager->getGlobalFrameAndNavTypeWaypointList();
         foreach (Waypoint* wp, waypointsToIcons.keys())
         {
             if (!wps.contains(wp))
@@ -622,16 +758,6 @@ void QGCMapWidget::updateWaypointList(int uas)
             qDebug() << "UPDATING NEW WP" << wp->getId();
             // Update / add only if new
             if (!waypointsToIcons.contains(wp)) updateWaypoint(uas, wp);
-        }
-
-        // Delete connecting waypoint lines
-        QGraphicsItemGroup* group = waypointLines.value(uas, NULL);
-        if (group)
-        {
-            foreach (QGraphicsItem* item, group->childItems())
-            {
-                delete item;
-            }
         }
 
         // Add line element if this is NOT the first waypoint

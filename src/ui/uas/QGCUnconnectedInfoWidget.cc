@@ -11,8 +11,12 @@ QGCUnconnectedInfoWidget::QGCUnconnectedInfoWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->simulationButton, SIGNAL(clicked()), this, SLOT(simulate()));
+    //connect(ui->simulationButton, SIGNAL(clicked()), this, SLOT(simulate()));
     connect(ui->connectButton, SIGNAL(clicked()), this, SLOT(addLink()));
+
+    // Overwrite global style sheet
+    //ui->connectButton->setStyleSheet("* { max-height: 1000; background-color: transparent; border-color: transparent; }");
+    //ui->connectButton->setStyleSheet("QToolButton {background-color: green; border-radius: 20px; } QButton {} QPushButton {}");
 }
 
 QGCUnconnectedInfoWidget::~QGCUnconnectedInfoWidget()

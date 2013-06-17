@@ -25,15 +25,21 @@ This file is part of the QGROUNDCONTROL project
 #define ARDUPILOTMEGAMAV_H
 
 #include "UAS.h"
-
 class ArduPilotMegaMAV : public UAS
 {
     Q_OBJECT
 public:
     ArduPilotMegaMAV(MAVLinkProtocol* mavlink, int id = 0);
+    /** @brief Set camera mount stabilization modes */
+    void setMountConfigure(unsigned char mode, bool stabilize_roll,bool stabilize_pitch,bool stabilize_yaw);
+    /** @brief Set camera mount control */
+    void setMountControl(double pa,double pb,double pc,bool islatlong);
 public slots:
     /** @brief Receive a MAVLink message from this MAV */
     void receiveMessage(LinkInterface* link, mavlink_message_t message);
+    void sendTxRequests();
+private:
+    QTimer *txReqTimer;
 };
 
 #endif // ARDUPILOTMAV_H

@@ -178,6 +178,11 @@ HSIDisplay::HSIDisplay(QWidget *parent) :
     connect(&statusClearTimer, SIGNAL(timeout()), this, SLOT(clearStatusMessage()));
     statusClearTimer.start(3000);
 
+    if (UASManager::instance()->getActiveUAS())
+    {
+        setActiveUAS(UASManager::instance()->getActiveUAS());
+    }
+
     setFocusPolicy(Qt::StrongFocus);
 }
 
@@ -852,6 +857,9 @@ void HSIDisplay::setMetricWidth(double width)
  */
 void HSIDisplay::setActiveUAS(UASInterface* uas)
 {
+    if (!uas)
+        return;
+
     if (this->uas != NULL) {
         disconnect(this->uas, SIGNAL(gpsSatelliteStatusChanged(int,int,float,float,float,bool)), this, SLOT(updateSatellite(int,int,float,float,float,bool)));
         disconnect(this->uas, SIGNAL(localPositionChanged(UASInterface*,double,double,double,quint64)), this, SLOT(updateLocalPosition(UASInterface*,double,double,double,quint64)));
@@ -859,7 +867,7 @@ void HSIDisplay::setActiveUAS(UASInterface* uas)
         disconnect(this->uas, SIGNAL(attitudeThrustSetPointChanged(UASInterface*,double,double,double,double,quint64)), this, SLOT(updateAttitudeSetpoints(UASInterface*,double,double,double,double,quint64)));
         disconnect(this->uas, SIGNAL(positionSetPointsChanged(int,float,float,float,float,quint64)), this, SLOT(updatePositionSetpoints(int,float,float,float,float,quint64)));
         disconnect(uas, SIGNAL(userPositionSetPointsChanged(int,float,float,float,float)), this, SLOT(updateUserPositionSetpoints(int,float,float,float,float)));
-        disconnect(this->uas, SIGNAL(speedChanged(UASInterface*,double,double,double,quint64)), this, SLOT(updateSpeed(UASInterface*,double,double,double,quint64)));
+        disconnect(this->uas, SIGNAL(velocityChanged_NED(UASInterface*,double,double,double,quint64)), this, SLOT(updateSpeed(UASInterface*,double,double,double,quint64)));
         disconnect(this->uas, SIGNAL(attitudeChanged(UASInterface*,double,double,double,quint64)), this, SLOT(updateAttitude(UASInterface*,double,double,double,quint64)));
 
         disconnect(this->uas, SIGNAL(attitudeControlEnabled(bool)), this, SLOT(updateAttitudeControllerEnabled(bool)));
@@ -890,7 +898,7 @@ void HSIDisplay::setActiveUAS(UASInterface* uas)
     connect(uas, SIGNAL(attitudeThrustSetPointChanged(UASInterface*,double,double,double,double,quint64)), this, SLOT(updateAttitudeSetpoints(UASInterface*,double,double,double,double,quint64)));
     connect(uas, SIGNAL(positionSetPointsChanged(int,float,float,float,float,quint64)), this, SLOT(updatePositionSetpoints(int,float,float,float,float,quint64)));
     connect(uas, SIGNAL(userPositionSetPointsChanged(int,float,float,float,float)), this, SLOT(updateUserPositionSetpoints(int,float,float,float,float)));
-    connect(uas, SIGNAL(speedChanged(UASInterface*,double,double,double,quint64)), this, SLOT(updateSpeed(UASInterface*,double,double,double,quint64)));
+    connect(uas, SIGNAL(velocityChanged_NED(UASInterface*,double,double,double,quint64)), this, SLOT(updateSpeed(UASInterface*,double,double,double,quint64)));
     connect(uas, SIGNAL(attitudeChanged(UASInterface*,double,double,double,quint64)), this, SLOT(updateAttitude(UASInterface*,double,double,double,quint64)));
 
     connect(uas, SIGNAL(attitudeControlEnabled(bool)), this, SLOT(updateAttitudeControllerEnabled(bool)));
@@ -1229,7 +1237,7 @@ void HSIDisplay::drawWaypoints(QPainter& painter)
     if (uas)
     {
         // Grab all waypoints.
-        const QVector<Waypoint*>& list = uas->getWaypointManager()->getWaypointEditableList();
+        const QList<Waypoint*>& list = uas->getWaypointManager()->getWaypointEditableList();
         const int numWaypoints = list.size();
 
         // Do not work on empty lists
@@ -1310,9 +1318,13 @@ void HSIDisplay::drawSafetyArea(const QPointF &topLeft, const QPointF &bottomRig
 void HSIDisplay::drawGPS(QPainter &painter)
 {
     float xCenter = xCenterPos;
-    float yCenter = xCenterPos;
-    // Max satellite circle radius
+    float yCenter = yCenterPos;
 
+    const float yawDeg = ((yaw/M_PI)*180.0f);
+    int yawRotate = static_cast<int>(yawDeg) % 360;
+    // XXX check rotation direction
+
+    // Max satellite circle radius
     const float margin = 0.15f;  // 20% margin of total width on each side
     float radius = (vwidth - vwidth * 2.0f * margin) / 2.0f;
     quint64 currTime = MG::TIME::getGroundTimeNowUsecs();
@@ -1353,8 +1365,8 @@ void HSIDisplay::drawGPS(QPainter &painter)
             painter.setPen(color);
             painter.setBrush(brush);
 
-            float xPos = xCenter + (sin(((sat->azimuth/255.0f)*360.0f)/180.0f * M_PI) * cos(sat->elevation/180.0f * M_PI)) * radius;
-            float yPos = yCenter - (cos(((sat->azimuth/255.0f)*360.0f)/180.0f * M_PI) * cos(sat->elevation/180.0f * M_PI)) * radius;
+            float xPos = xCenter + (sin(((sat->azimuth/255.0f)*360.0f-yawRotate)/180.0f * M_PI) * cos(sat->elevation/180.0f * M_PI)) * radius;
+            float yPos = yCenter - (cos(((sat->azimuth/255.0f)*360.0f-yawRotate)/180.0f * M_PI) * cos(sat->elevation/180.0f * M_PI)) * radius;
 
             // Draw circle for satellite, filled for used satellites
             drawCircle(xPos, yPos, vwidth*0.02f, 1.0f, color, &painter);

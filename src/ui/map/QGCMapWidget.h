@@ -40,6 +40,12 @@ signals:
     void waypointChanged(Waypoint* wp);
 
 public slots:
+    /** @brief Action triggered with point-camera action is selected from the context menu */
+    void cameraActionTriggered();
+    /** @brief Action triggered when guided action is selected from the context menu */
+    void guidedActionTriggered();
+    /** @brief Action triggered when guided action is selected from the context menu, allows for altitude selection */
+    bool guidedAltActionTriggered();
     /** @brief Add system to map view */
     void addUAS(UASInterface* uas);
     /** @brief Update the global position of a system */
@@ -126,9 +132,12 @@ protected:
     /** @brief Initialize */
     void showEvent(QShowEvent* event);
     void hideEvent(QHideEvent* event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent* event);
 
     UASWaypointManager* currWPManager; ///< The current waypoint manager
+    bool offlineMode;
     QMap<Waypoint* , mapcontrol::WayPointItem*> waypointsToIcons;
     QMap<mapcontrol::WayPointItem*, Waypoint*> iconsToWaypoints;
     Waypoint* firingWaypointChange;
@@ -150,6 +159,9 @@ protected:
     int followUAVID;                    ///< Which UAV should be tracked?
     bool mapInitialized;                ///< Map initialized?
     float homeAltitude;                 ///< Home altitude
+    QPoint mousePressPos;               ///< Mouse position when the button is released.
+    int defaultGuidedAlt;               ///< Default altitude for guided mode
+    UASInterface *uas;                  ///< Currently selected UAS.
 
 };
 

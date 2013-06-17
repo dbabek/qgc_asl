@@ -34,7 +34,7 @@ This file is part of the PIXHAWK project
 #include <float.h>
 #include <UASInfoWidget.h>
 #include <UASManager.h>
-#include <MG.h>
+#include <QGC.h>
 #include <QTimer>
 #include <QDir>
 #include <cstdlib>
@@ -46,20 +46,12 @@ UASInfoWidget::UASInfoWidget(QWidget *parent, QString name) : QWidget(parent)
 {
     ui.setupUi(this);
     this->name = name;
-
-    connect(UASManager::instance(), SIGNAL(activeUASSet(UASInterface*)), this, SLOT(setActiveUAS(UASInterface*)));
-
     activeUAS = NULL;
 
-    //instruments = new QMap<QString, QProgressBar*>();
+    connect(UASManager::instance(), SIGNAL(activeUASSet(UASInterface*)), this, SLOT(setActiveUAS(UASInterface*)));
+    setActiveUAS(UASManager::instance()->getActiveUAS());
 
-    // Set default battery type
-    //    setBattery(0, LIPOLY, 3);
-    startTime = MG::TIME::getGroundTimeNow();
-    //    startVoltage = 0.0f;
-
-    //    lastChargeLevel = 0.5f;
-    //    lastRemainingTime = 1;
+    startTime = QGC::groundTimeMilliseconds();
 
     // Set default values
     /** Set two voltage decimals and zero charge level decimals **/
@@ -105,7 +97,7 @@ void UASInfoWidget::hideEvent(QHideEvent* event)
 void UASInfoWidget::addUAS(UASInterface* uas)
 {
     if (uas != NULL) {
-        connect(uas, SIGNAL(batteryChanged(UASInterface*,double,double,int)), this, SLOT(updateBattery(UASInterface*,double,double,int)));
+        connect(uas, SIGNAL(batteryChanged(UASInterface*, double, double, double, int)), this, SLOT(updateBattery(UASInterface*, double, double, double, int)));
         connect(uas, SIGNAL(dropRateChanged(int,float)), this, SLOT(updateReceiveLoss(int,float)));
         connect(uas, SIGNAL(loadChanged(UASInterface*, double)), this, SLOT(updateCPULoad(UASInterface*,double)));
         connect(uas, SIGNAL(errCountChanged(int,QString,QString,int)), this, SLOT(updateErrorCount(int,QString,QString,int)));
@@ -117,11 +109,13 @@ void UASInfoWidget::addUAS(UASInterface* uas)
 
 void UASInfoWidget::setActiveUAS(UASInterface* uas)
 {
-    activeUAS = uas;
+    if (uas)
+        activeUAS = uas;
 }
 
-void UASInfoWidget::updateBattery(UASInterface* uas, double voltage, double percent, int seconds)
+void UASInfoWidget::updateBattery(UASInterface* uas, double voltage, double current, double percent, int seconds)
 {
+    Q_UNUSED(current)
     setVoltage(uas, voltage);
     setChargeLevel(uas, percent);
     setTimeRemaining(uas, seconds);
