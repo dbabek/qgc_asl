@@ -11,10 +11,12 @@ class XBeeReset : public QWidget
 public:
 	XBeeReset(QWidget *parent = 0);
 	~XBeeReset();
+
+public slots:
 	void ResetXBee(void);
 
 private:
-	Ui::XBeeReset ui;
+	Ui::XBeeReset *m_ui;
 };
 
 #endif // XBEERESET_H

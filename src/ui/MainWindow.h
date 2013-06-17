@@ -58,6 +58,7 @@ This file is part of the QGROUNDCONTROL project
 #include "Mouse6dofInput.h"
 #endif // MOUSE_ENABLED_WIN
 #include "DebugConsole.h"
+#include "xbeereset.h"
 #include "ParameterInterface.h"
 #include "XMLCommProtocolWidget.h"
 #include "HDDisplay.h"
@@ -347,7 +348,8 @@ protected:
     QPointer<QDockWidget> waypointsDockWidget;
     QPointer<QDockWidget> detectionDockWidget;
     QPointer<QDockWidget> debugConsoleDockWidget;
-    QPointer<QDockWidget> parametersDockWidget;
+	QPointer<QDockWidget> XBeeResetWidget;
+	QPointer<QDockWidget> parametersDockWidget;
     QPointer<QDockWidget> headDown1DockWidget;
     QPointer<QDockWidget> headDown2DockWidget;
     QPointer<QDockWidget> watchdogControlDockWidget;

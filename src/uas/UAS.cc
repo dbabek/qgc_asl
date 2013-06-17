@@ -27,6 +27,8 @@
 #include "LinkManager.h"
 #include "SerialLink.h"
 
+#include "AtlantikSolar\AtlantikSolar.h"
+
 #ifdef QGC_PROTOBUF_ENABLED
 #include <google/protobuf/descriptor.h>
 #endif
@@ -1268,7 +1270,10 @@ void UAS::receiveMessage(LinkInterface* link, mavlink_message_t message)
         case MAVLINK_MSG_ID_NAMED_VALUE_INT:
         case MAVLINK_MSG_ID_MANUAL_CONTROL:
         case MAVLINK_MSG_ID_HIGHRES_IMU:
-            break;
+		{
+			std::cout << "some message received..."<<endl;
+			break;
+		}
         default:
         {
             if (!unknownPackets.contains(message.msgid))

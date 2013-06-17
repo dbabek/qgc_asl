@@ -418,6 +418,18 @@ void MainWindow::buildCommonWidgets()
         addTool(debugConsoleDockWidget, tr("Communication Console"), Qt::BottomDockWidgetArea);
     }
 
+	if (!XBeeResetWidget)
+    {
+        XBeeResetWidget = new QDockWidget(tr("XBeeee Reset"), this);
+        XBeeResetWidget->setWidget( new XBeeReset(this) );
+        XBeeResetWidget->setObjectName("XBEERESET_DOCKWIDGET");
+
+        //XBeeReset *xBeeReset = dynamic_cast<XBeeReset*>(XBeeResetWidget->widget());
+        //connect(mavlinkDecoder, SIGNAL(textMessageReceived(int, int, int, const QString)), debugConsole, SLOT(receiveTextMessage(int, int, int, const QString)));
+
+        addTool(XBeeResetWidget, tr("XBeeee Reset"), Qt::BottomDockWidgetArea);
+    }
+
     if (!logPlayerDockWidget)
     {
         logPlayerDockWidget = new QDockWidget(tr("MAVLink Log Player"), this);

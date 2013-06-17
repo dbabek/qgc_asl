@@ -35,7 +35,7 @@ extern "C" {
 #define HAVE_ENUM_MAV_AUTOPILOT
 enum MAV_AUTOPILOT
 {
-	MAV_AUTOPILOT_GENERIC=0, /* Generic autopilot, full support for everything | */
+	MAV_AUTOPILOT_GENERIC=0, /* Generic autopilot, full support foMAV_CMD_DO_START_SEARCHr everything | */
 	MAV_AUTOPILOT_PIXHAWK=1, /* PIXHAWK autopilot, http://pixhawk.ethz.ch | */
 	MAV_AUTOPILOT_SLUGS=2, /* SLUGS autopilot, http://slugsuav.soe.ucsc.edu | */
 	MAV_AUTOPILOT_ARDUPILOTMEGA=3, /* ArduPilotMega / ArduCopter, http://diydrones.com | */
@@ -48,7 +48,7 @@ enum MAV_AUTOPILOT
 	MAV_AUTOPILOT_UDB=10, /* UAV Dev Board | */
 	MAV_AUTOPILOT_FP=11, /* FlexiPilot | */
 	MAV_AUTOPILOT_PX4=12, /* PX4 Autopilot - http://pixhawk.ethz.ch/px4/ | */
-	MAV_AUTOPILOT_ENUM_END=13, /*  | */
+	MAV_AUTOPILOT_ENUM_END=13 /**/
 };
 #endif
 

@@ -13,6 +13,7 @@
 #include "SlugsMAV.h"
 #include "PxQuadMAV.h"
 #include "senseSoarMAV.h"
+#include "AtlantikSolarUAS.h"
 #include "ArduPilotMegaMAV.h"
 
 class QGCMAVLinkUASFactory : public QObject

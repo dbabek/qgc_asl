@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+<mavlink>
+     <include>common.xml</include>
+     <include>pixhawk.xml</include>
+     <enums>
+     </enums>
+     <messages>
+          <message id="201" name="XBEE_HARDRESET">
+               <field type="uint8_t" name="test">test data</field>
+          </message>
+     </messages>
+</mavlink>
