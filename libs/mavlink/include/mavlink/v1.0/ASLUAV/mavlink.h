@@ -22,6 +22,6 @@
 #endif
 
 #include "version.h"
-#include "AtlantikSolar.h"
+#include "ASLUAV.h"
 
 #endif // MAVLINK_H

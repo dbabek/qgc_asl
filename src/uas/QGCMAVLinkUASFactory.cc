@@ -88,10 +88,10 @@ UASInterface* QGCMAVLinkUASFactory::createUAS(MAVLinkProtocol* mavlink, LinkInte
 			break;
 		}
 #endif
-#ifdef QGC_USE_ATLANTIKSOLAR_MESSAGES
-	case MAV_AUTOPILOT_ATLANTIKSOLAR:
+#ifdef QGC_USE_ASLUAV_MESSAGES
+	case MAV_AUTOPILOT_ASLUAV:
 		{
-			AtlantikSolarUAS* mav = new AtlantikSolarUAS(mavlink,sysid);
+			ASLUAV* mav = new ASLUAV(mavlink,sysid);
 			mav->setSystemType((int)heartbeat->type);
 			connect(mavlink, SIGNAL(messageReceived(LinkInterface*, mavlink_message_t)), mav, SLOT(receiveMessage(LinkInterface*, mavlink_message_t)));
 			uas = mav;

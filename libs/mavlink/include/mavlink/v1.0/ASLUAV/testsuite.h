@@ -1,9 +1,9 @@
 /** @file
- *	@brief MAVLink comm protocol testsuite generated from AtlantikSolar.xml
+ *	@brief MAVLink comm protocol testsuite generated from ASLUAV.xml
  *	@see http://qgroundcontrol.org/mavlink/
  */
-#ifndef ATLANTIKSOLAR_TESTSUITE_H
-#define ATLANTIKSOLAR_TESTSUITE_H
+#ifndef ASLUAV_TESTSUITE_H
+#define ASLUAV_TESTSUITE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,13 +13,13 @@ extern "C" {
 #define MAVLINK_TEST_ALL
 static void mavlink_test_common(uint8_t, uint8_t, mavlink_message_t *last_msg);
 static void mavlink_test_pixhawk(uint8_t, uint8_t, mavlink_message_t *last_msg);
-static void mavlink_test_AtlantikSolar(uint8_t, uint8_t, mavlink_message_t *last_msg);
+static void mavlink_test_ASLUAV(uint8_t, uint8_t, mavlink_message_t *last_msg);
 
 static void mavlink_test_all(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
 {
 	mavlink_test_common(system_id, component_id, last_msg);
 	mavlink_test_pixhawk(system_id, component_id, last_msg);
-	mavlink_test_AtlantikSolar(system_id, component_id, last_msg);
+	mavlink_test_ASLUAV(system_id, component_id, last_msg);
 }
 #endif
 
@@ -123,7 +123,7 @@ static void mavlink_test_custom_sensor_data(uint8_t system_id, uint8_t component
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
-static void mavlink_test_AtlantikSolar(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+static void mavlink_test_ASLUAV(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
 {
 	mavlink_test_xbee_hardreset(system_id, component_id, last_msg);
 	mavlink_test_custom_sensor_data(system_id, component_id, last_msg);
@@ -132,4 +132,4 @@ static void mavlink_test_AtlantikSolar(uint8_t system_id, uint8_t component_id, 
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-#endif // ATLANTIKSOLAR_TESTSUITE_H
+#endif // ASLUAV_TESTSUITE_H

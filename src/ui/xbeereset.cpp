@@ -1,6 +1,6 @@
 #include "xbeereset.h"
-#include "AtlantikSolar\mavlink.h"
-//#include "AtlantikSolar\mavlink_msg_xbee_hardreset.h"
+#include "ASLUAV\mavlink.h"
+//#include "ASLUAV\mavlink_msg_xbee_hardreset.h"
 #include <QMessageBox>
 #include "UAS.h"
 #include "UASManager.h"

@@ -510,19 +510,17 @@ void MainWindow::buildCommonWidgets()
     createDockWidget(plannerView,new UASListWidget(this),tr("Unmanned Systems"),"UNMANNED_SYSTEM_LIST_DOCKWIDGET",VIEW_MISSION,Qt::LeftDockWidgetArea);
     createDockWidget(plannerView,new QGCWaypointListMulti(this),tr("Mission Plan"),"WAYPOINT_LIST_DOCKWIDGET",VIEW_MISSION,Qt::BottomDockWidgetArea);
 
-	if (!XBeeResetWidget)
+	/*if (!XBeeResetWidget)
     {
         XBeeResetWidget = new QDockWidget(tr("XBeeee Reset"), this);
         XBeeResetWidget->setWidget( new XBeeReset(this) );
         XBeeResetWidget->setObjectName("XBEERESET_DOCKWIDGET");
-
-        //XBeeReset *xBeeReset = dynamic_cast<XBeeReset*>(XBeeResetWidget->widget());
-        //connect(mavlinkDecoder, SIGNAL(textMessageReceived(int, int, int, const QString)), debugConsole, SLOT(receiveTextMessage(int, int, int, const QString)));
-
         addTool(XBeeResetWidget, tr("XBeeee Reset"), Qt::BottomDockWidgetArea);
-    }
+    }*/
 
-
+	createDockWidget(engineeringView,new XBeeReset(this),tr("XBeeReset"),"XBEE_RESET",VIEW_ENGINEER,Qt::RightDockWidgetArea);
+	//connect anything here?
+	{
         //createDockWidget(plannerView,new QGCWaypointListMulti(this),tr("Mission Plan"),"WAYPOINT_LIST_DOCKWIDGET",VIEW_MISSION,Qt::BottomDockWidgetArea);
         QAction* tempAction = ui.menuTools->addAction(tr("Mission Plan"));
         tempAction->setCheckable(true);

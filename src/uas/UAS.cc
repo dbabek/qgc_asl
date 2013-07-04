@@ -27,7 +27,7 @@
 #include "LinkManager.h"
 #include "SerialLink.h"
 
-#include "AtlantikSolar\AtlantikSolar.h"
+#include "ASLUAV\ASLUAV.h"
 
 #ifdef QGC_PROTOBUF_ENABLED
 #include <google/protobuf/descriptor.h>

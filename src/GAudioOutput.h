@@ -63,6 +63,17 @@ extern "C" {
 }
 #endif
 
+#if _MSC_VER
+// Documentation: http://msdn.microsoft.com/en-us/library/ee125082%28v=VS.85%29.aspx
+#define _ATL_APARTMENT_THREADED
+#include <atlbase.h>
+//You may derive a class from CComModule and use it if you want to override something,
+//but do not change the name of _Module
+extern CComModule _Module;
+#include <atlcom.h>
+#include <sapi.h>
+#endif
+
 /**
  * @brief Audio Output (speech synthesizer and "beep" output)
  * This class follows the singleton design pattern
@@ -116,7 +127,8 @@ protected:
 #ifdef Q_OS_LINUX
     //cst_voice* voice; ///< The flite voice object
 #endif
-    int voiceIndex;   ///< The index of the flite voice to use (awb, slt, rms)
+	static ISpVoice* pVoice;
+	int voiceIndex;   ///< The index of the flite voice to use (awb, slt, rms)
     Phonon::MediaObject* m_media; ///< The output object for audio
     Phonon::AudioOutput* m_audioOutput;
     bool emergency;   ///< Emergency status flag
@@ -124,7 +136,8 @@ protected:
     bool muted;
 private:
     GAudioOutput(QObject* parent=NULL);
-//    ~GAudioOutput();
+    ~GAudioOutput();
 };
 
 #endif // AUDIOOUTPUT_H
+

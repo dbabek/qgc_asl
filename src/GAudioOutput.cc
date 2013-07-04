@@ -42,7 +42,7 @@ This file is part of the QGROUNDCONTROL project
 #endif
 
 // Speech synthesis is only supported with MSVC compiler
-#if _MSC_VER2
+#if _MSC_VER
 // Documentation: http://msdn.microsoft.com/en-us/library/ee125082%28v=VS.85%29.aspx
 #define _ATL_APARTMENT_THREADED
 
@@ -65,7 +65,7 @@ extern "C" {
 };
 #endif
 
-
+ISpVoice* GAudioOutput::pVoice=NULL;
 
 /**
  * This class follows the singleton design pattern
@@ -104,9 +104,8 @@ GAudioOutput::GAudioOutput(QObject* parent) : QObject(parent),
     flite_init();
 #endif
 
-#if _MSC_VER2
-
-    ISpVoice * pVoice = NULL;
+#if _MSC_VER
+	pVoice = NULL;
     if (FAILED(::CoInitialize(NULL)))
     {
         qDebug("Creating COM object for audio output failed!");
@@ -114,12 +113,12 @@ GAudioOutput::GAudioOutput(QObject* parent) : QObject(parent),
     else
     {
 
-        HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice;);
+        HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
         if( SUCCEEDED( hr ) )
         {
-            hr = pVoice->Speak(L"Hello world", 0, NULL);
-            pVoice->Release();
-            pVoice = NULL;
+            hr = pVoice->Speak(L"QGC audio output active!", 0, NULL);
+            //pVoice->Release();
+            //pVoice = NULL;
         }
     }
 #endif
@@ -142,12 +141,15 @@ GAudioOutput::GAudioOutput(QObject* parent) : QObject(parent),
     }
 }
 
-//GAudioOutput::~GAudioOutput()
-//{
-//#ifdef _MSC_VER2
-//    ::CoUninitialize();
-//#endif
-//}
+GAudioOutput::~GAudioOutput()
+{
+#ifdef _MSC_VER
+    pVoice->Release();
+	pVoice = NULL;
+	::CoUninitialize();
+#endif
+}
+
 
 void GAudioOutput::mute(bool mute)
 {
@@ -177,11 +179,27 @@ bool GAudioOutput::say(QString text, int severity)
         {
 
             // Speech synthesis is only supported with MSVC compiler
-#ifdef _MSC_VER2
-            SpeechSynthesizer synth = new SpeechSynthesizer();
+#ifdef _MSC_VER
+            /*SpeechSynthesizer synth = new SpeechSynthesizer();
             synth.SelectVoice("Microsoft Anna");
             synth.SpeakText(text.toStdString().c_str());
-            res = true;
+            res = true;*/
+			/*ISpVoice * pVoice = NULL;
+			if (FAILED(::CoInitialize(NULL)))
+			{
+				qDebug("Creating COM object for audio output failed!");
+			}
+			else
+			{
+				HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
+				if( SUCCEEDED( hr ) )
+				{
+					hr = */pVoice->Speak(text.toStdWString().c_str(), SPF_ASYNC, NULL);
+					/*pVoice->WaitUntilDone(5000);
+					pVoice->Release();
+					pVoice = NULL;
+				}
+			}*/
 #endif
 
 #ifdef Q_OS_LINUX

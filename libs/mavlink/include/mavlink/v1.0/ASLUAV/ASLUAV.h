@@ -1,9 +1,9 @@
 /** @file
- *	@brief MAVLink comm protocol generated from AtlantikSolar.xml
+ *	@brief MAVLink comm protocol generated from ASLUAV.xml
  *	@see http://qgroundcontrol.org/mavlink/
  */
-#ifndef ATLANTIKSOLAR_H
-#define ATLANTIKSOLAR_H
+#ifndef ASLUAV_H
+#define ASLUAV_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +26,7 @@ extern "C" {
 #include "../protocol.h"
 
 //ENUMS & DEFINES
-#define MAVLINK_ENABLED_ATLANTIKSOLAR
+#define MAVLINK_ENABLED_ASLUAV
 
 /** @brief Micro air vehicle / autopilot classes. This identifies the individual model. */
 #ifndef HAVE_ENUM_MAV_AUTOPILOT
@@ -48,7 +48,7 @@ enum MAV_AUTOPILOT
 	MAV_AUTOPILOT_PX4=12, /* PX4 Autopilot - http://pixhawk.ethz.ch/px4/ | */
 	MAV_AUTOPILOT_SMACCMPILOT=13, /* SMACCMPilot - http://smaccmpilot.org| */
 	MAV_AUTOPILOT_AUTOQUAD=14, /*	AutoQuad -- http://autoquad.org*/
-	MAV_AUTOPILOT_ATLANTIKSOLAR=15, /* AtlantikSolar - atlantiksolar.ethz.ch */
+	MAV_AUTOPILOT_ASLUAV=15, /* ASLUAV - ETH Zurich Autonomous Systems Lab UAVs, asl.ethz.ch */
 	MAV_AUTOPILOT_ENUM_END=16 /*  | */
 };
 #endif
@@ -74,4 +74,4 @@ enum MAV_AUTOPILOT
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-#endif // ATLANTIKSOLAR_H
+#endif // ASLUAV_H
