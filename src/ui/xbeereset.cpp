@@ -1,6 +1,5 @@
 #include "xbeereset.h"
 #include "ASLUAV\mavlink.h"
-//#include "ASLUAV\mavlink_msg_xbee_hardreset.h"
 #include <QMessageBox>
 #include "UAS.h"
 #include "UASManager.h"

@@ -2,7 +2,7 @@
 #define _ASLUAV_H_
 
 #include "PxQuadMAV.h"
-#include "mavlink.h"	// ???? TODO
+//#include "mavlink.h"	// ???? TODO
 #include "..\..\libs\mavlink\include\mavlink\v1.0\ASLUAV\mavlink.h"
 
 
