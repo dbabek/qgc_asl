@@ -80,12 +80,13 @@ This file is part of the QGROUNDCONTROL project
 const QString MainWindow::defaultDarkStyle = ":files/styles/style-dark.css";
 const QString MainWindow::defaultLightStyle = ":files/styles/style-light.css";
 
-MainWindow* MainWindow::instance(QSplashScreen* screen)
+MainWindow* MainWindow::instance_mode(QSplashScreen* screen, enum MainWindow::CUSTOM_MODE mode)
 {
     static MainWindow* _instance = 0;
     if (_instance == 0)
     {
         _instance = new MainWindow();
+        _instance->setCustomMode(mode);
         if (screen)
         {
             connect(_instance, SIGNAL(initStatusChanged(QString,int,QColor)),
@@ -94,6 +95,11 @@ MainWindow* MainWindow::instance(QSplashScreen* screen)
         _instance->init();
     }
     return _instance;
+}
+
+MainWindow* MainWindow::instance(QSplashScreen* screen)
+{
+    return instance_mode(screen, CUSTOM_MODE_UNCHANGED);
 }
 
 /**
@@ -115,16 +121,15 @@ MainWindow::MainWindow(QWidget *parent):
     autoReconnect(false),
     lowPowerMode(false),
     isAdvancedMode(false),
-    dockWidgetTitleBarEnabled(true)
+    dockWidgetTitleBarEnabled(true),
+    customMode(CUSTOM_MODE_NONE)
 {
     this->setAttribute(Qt::WA_DeleteOnClose);
-    hide();
+    loadSettings();
 }
 
 void MainWindow::init()
 {
-    emit initStatusChanged(tr("Loading settings"), Qt::AlignLeft | Qt::AlignBottom, QColor(62, 93, 141));
-    loadSettings();
 
     emit initStatusChanged(tr("Loading style"), Qt::AlignLeft | Qt::AlignBottom, QColor(62, 93, 141));
     qApp->setStyle("plastique");
@@ -1149,6 +1154,9 @@ void MainWindow::loadCustomWidgetsFromDefaults(const QString& systemType, const 
 void MainWindow::loadSettings()
 {
     QSettings settings;
+    settings.sync();
+    customMode = static_cast<enum MainWindow::CUSTOM_MODE>(settings.value("QGC_CUSTOM_MODE", (unsigned int)MainWindow::CUSTOM_MODE_NONE).toInt());
+    qDebug() << "MAINWINDOW: CUSTOM MODE:" << customMode;
     settings.beginGroup("QGC_MAINWINDOW");
     autoReconnect = settings.value("AUTO_RECONNECT", autoReconnect).toBool();
     currentStyle = (QGC_MAINWINDOW_STYLE)settings.value("CURRENT_STYLE", currentStyle).toInt();
@@ -1181,6 +1189,7 @@ void MainWindow::storeSettings()
         // Save the current power mode
     }
     settings.setValue("LOW_POWER_MODE", lowPowerMode);
+    settings.setValue("QGC_CUSTOM_MODE", (int)customMode);
     settings.sync();
 }
 
@@ -1295,6 +1304,7 @@ bool MainWindow::loadStyle(QGC_MAINWINDOW_STYLE style, QString cssFile)
         // And trigger any changes to other UI elements that are watching for
         // theme changes.
         emit styleChanged(style);
+        emit styleChanged();
 
         // Finally restore the cursor before returning.
         qApp->restoreOverrideCursor();
