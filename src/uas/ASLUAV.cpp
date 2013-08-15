@@ -19,6 +19,22 @@ ASLUAV::~ASLUAV(void)
 {
 }
 
+//Overwritten function is in PxQuadMAV/UAS
+QString ASLUAV::getAutopilotTypeName()
+{
+    switch (autopilot)
+    {
+    case MAV_AUTOPILOT_ASLUAV:
+        return "ASLUAV";
+        break;
+    default:
+		return PxQuadMAV::getAutopilotTypeName();
+        break;
+    }
+}
+
+
+
 void ASLUAV::receiveMessage(LinkInterface *link, mavlink_message_t message)
 {
 #ifdef MAVLINK_ENABLED_ASLUAV
@@ -127,7 +143,9 @@ void ASLUAV::receiveMessage(LinkInterface *link, mavlink_message_t message)
 				//The rest of the message handling (i.e. adding data to the plots) is done elsewhere
 				break;
 			}
-			case MAVLINK_MSG_ID_SYS_STATUS: //overwritten, normally handled in PxQuadMAV::receiveMessage() or UAS::receiveMessage()
+			case MAVLINK_MSG_ID_SYS_STATUS: 
+			// overwritten, normally handled in PxQuadMAV::receiveMessage() or UAS::receiveMessage()
+			// mods introduced apply to voltage calculations & alarms (PhOe)
 			{
 				if (multiComponentSourceDetected && wrongComponent)
 				{

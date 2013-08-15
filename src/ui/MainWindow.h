@@ -56,7 +56,6 @@ This file is part of the QGROUNDCONTROL project
 #include "Mouse6dofInput.h"
 #endif // MOUSE_ENABLED_WIN
 #include "DebugConsole.h"
-#include "xbeereset.h"
 #include "ParameterInterface.h"
 #include "XMLCommProtocolWidget.h"
 #include "HDDisplay.h"
@@ -79,6 +78,9 @@ This file is part of the QGROUNDCONTROL project
 #include "QGCMAVLinkLogPlayer.h"
 #include "QGCVehicleConfig.h"
 #include "MAVLinkDecoder.h"
+
+#include "xbeereset.h"
+#include "AudioOutputConfig.h"
 
 class QGCMapTool;
 class QGCMAVLinkMessageSender;
@@ -430,6 +432,8 @@ protected:
     QPointer<QDockWidget> detectionDockWidget;
     QPointer<QDockWidget> debugConsoleDockWidget;
 	QPointer<QDockWidget> XBeeResetWidget;
+	//QPointer<QDockWidget> AudioOutputConfigWidget;
+
 	QPointer<QDockWidget> parametersDockWidget;
     QPointer<QDockWidget> headDown1DockWidget;
     QPointer<QDockWidget> headDown2DockWidget;

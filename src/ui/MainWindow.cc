@@ -527,20 +527,24 @@ void MainWindow::buildCommonWidgets()
     connect(tempAction,SIGNAL(triggered(bool)),this, SLOT(showTool(bool)));
 
     createDockWidget(simView,new UASControlWidget(this),tr("Control"),"UNMANNED_SYSTEM_CONTROL_DOCKWIDGET",VIEW_SIMULATION,Qt::LeftDockWidgetArea);
+	createDockWidget(plannerView,new UASListWidget(this),tr("Unmanned Systems"),"UNMANNED_SYSTEM_LIST_DOCKWIDGET",VIEW_MISSION,Qt::LeftDockWidgetArea);
+    
 
-    createDockWidget(plannerView,new UASListWidget(this),tr("Unmanned Systems"),"UNMANNED_SYSTEM_LIST_DOCKWIDGET",VIEW_MISSION,Qt::LeftDockWidgetArea);
-    createDockWidget(plannerView,new QGCWaypointListMulti(this),tr("Mission Plan"),"WAYPOINT_LIST_DOCKWIDGET",VIEW_MISSION,Qt::BottomDockWidgetArea);
-
-	/*if (!XBeeResetWidget)
-    {
-        XBeeResetWidget = new QDockWidget(tr("XBeeee Reset"), this);
-        XBeeResetWidget->setWidget( new XBeeReset(this) );
-        XBeeResetWidget->setObjectName("XBEERESET_DOCKWIDGET");
-        addTool(XBeeResetWidget, tr("XBeeee Reset"), Qt::BottomDockWidgetArea);
-    }*/
-
+	//Mod: This adds the XBeeResetWidget (POe)
 	createDockWidget(engineeringView,new XBeeReset(this),tr("XBeeReset"),"XBEE_RESET",VIEW_ENGINEER,Qt::RightDockWidgetArea);
+	
+	//Mod: This adds the AudioConfigWidget to the menu
+	{
+        QAction* tempAction = ui.menuTools->addAction(tr("Audio Output Configuration"));
+        tempAction->setCheckable(true);
+        connect(tempAction,SIGNAL(triggered(bool)),this, SLOT(showTool(bool)));
+        menuToDockNameMap[tempAction] = "AUDIO_OUTPUT_CONFIG";
+    }
+	createDockWidget(engineeringView,new AudioOutputConfig(this),tr("Audio Output Configuration"),"AUDIO_OUTPUT_CONFIG",VIEW_ENGINEER,Qt::RightDockWidgetArea);
+
+
 	//connect anything here?
+	createDockWidget(plannerView,new QGCWaypointListMulti(this),tr("Mission Plan"),"WAYPOINT_LIST_DOCKWIDGET",VIEW_MISSION,Qt::BottomDockWidgetArea);
 	{
         //createDockWidget(plannerView,new QGCWaypointListMulti(this),tr("Mission Plan"),"WAYPOINT_LIST_DOCKWIDGET",VIEW_MISSION,Qt::BottomDockWidgetArea);
         QAction* tempAction = ui.menuTools->addAction(tr("Mission Plan"));
@@ -548,9 +552,9 @@ void MainWindow::buildCommonWidgets()
         connect(tempAction,SIGNAL(triggered(bool)),this, SLOT(showTool(bool)));
         menuToDockNameMap[tempAction] = "WAYPOINT_LIST_DOCKWIDGET";
     }
-
-    createDockWidget(simView,new QGCWaypointListMulti(this),tr("Mission Plan"),"WAYPOINT_LIST_DOCKWIDGET",VIEW_SIMULATION,Qt::BottomDockWidgetArea);
-    createDockWidget(engineeringView,new QGCMAVLinkInspector(mavlink,this),tr("MAVLink Inspector"),"MAVLINK_INSPECTOR_DOCKWIDGET",VIEW_ENGINEER,Qt::RightDockWidgetArea);
+	createDockWidget(simView,new QGCWaypointListMulti(this),tr("Mission Plan"),"WAYPOINT_LIST_DOCKWIDGET",VIEW_SIMULATION,Qt::BottomDockWidgetArea);
+    
+	createDockWidget(engineeringView,new QGCMAVLinkInspector(mavlink,this),tr("MAVLink Inspector"),"MAVLINK_INSPECTOR_DOCKWIDGET",VIEW_ENGINEER,Qt::RightDockWidgetArea);
 
     createDockWidget(engineeringView,new ParameterInterface(this),tr("Onboard Parameters"),"PARAMETER_INTERFACE_DOCKWIDGET",VIEW_ENGINEER,Qt::RightDockWidgetArea);
     createDockWidget(simView,new ParameterInterface(this),tr("Onboard Parameters"),"PARAMETER_INTERFACE_DOCKWIDGET",VIEW_SIMULATION,Qt::RightDockWidgetArea);

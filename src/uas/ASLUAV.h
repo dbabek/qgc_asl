@@ -21,6 +21,9 @@ public:
 	ASLUAV(MAVLinkProtocol* mavlink, int id);
 	~ASLUAV(void);
 
+public:
+	QString getAutopilotTypeName();	//Overwritten from PxQuadMAV / UAS to add MAV_AUTOPILOT_ASLUAV type.
+
 public slots:
     /** @brief Receive a MAVLink message from this MAV */
     void receiveMessage(LinkInterface* link, mavlink_message_t message);
