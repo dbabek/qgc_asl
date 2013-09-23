@@ -1328,6 +1328,7 @@ void UAS::receiveMessage(LinkInterface* link, mavlink_message_t message)
             }
         }
             break;
+#if 0
         case MAVLINK_MSG_ID_SERVO_OUTPUT_RAW:
         {
             mavlink_servo_output_raw_t raw;
@@ -1342,6 +1343,7 @@ void UAS::receiveMessage(LinkInterface* link, mavlink_message_t message)
             }
         }
         break;
+#endif
 #ifdef MAVLINK_ENABLED_PIXHAWK
         case MAVLINK_MSG_ID_DATA_TRANSMISSION_HANDSHAKE:
         {
@@ -1656,9 +1658,13 @@ void UAS::setHomePosition(double lat, double lon, double alt)
     if (blockHomePositionChanges)
         return;
 
+    QString uasName = (getUASName() == "")?
+                tr("UAS") + QString::number(getUASID())
+              : getUASName();
+
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText(tr("Set a new home position for vehicle %s").arg(getUASName()));
+    msgBox.setText(tr("Set a new home position for vehicle %1").arg(uasName));
     msgBox.setInformativeText("Do you want to set a new origin? Waypoints defined in the local frame will be shifted in their physical location");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Cancel);
