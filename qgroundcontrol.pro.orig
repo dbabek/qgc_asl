@@ -296,14 +296,18 @@ FORMS += src/ui/MainWindow.ui \
     src/ui/QGCConfigView.ui \
     src/ui/main/QGCViewModeSelection.ui \
     src/ui/main/QGCWelcomeMainWindow.ui \
+<<<<<<< HEAD
+    src/ui/xbeereset.ui \
+    src/ui/AudioOutputConfig.ui
+=======
     src/ui/configuration/terminalconsole.ui \
     src/ui/configuration/SerialSettingsDialog.ui \
     src/ui/configuration/ApmFirmwareConfig.ui \
     src/ui/px4_configuration/QGCPX4AirframeConfig.ui \
     src/ui/px4_configuration/QGCPX4MulticopterConfig.ui \
-    src/ui/px4_configuration/QGCPX4SensorCalibration.ui \
-    src/ui/xbeereset.ui \
-    src/ui/AudioOutputConfig.ui
+    src/ui/px4_configuration/QGCPX4SensorCalibration.ui
+
+>>>>>>> QGC/config
 INCLUDEPATH += src \
     src/ui \
     src/ui/linechart \
@@ -496,6 +500,11 @@ HEADERS += src/MG.h \
     src/ui/QGCConfigView.h \
     src/ui/main/QGCViewModeSelection.h \
     src/ui/main/QGCWelcomeMainWindow.h \
+<<<<<<< HEAD
+    src/uas/ASLUAV.h \
+    src/ui/xbeereset.h \
+    src/ui/AudioOutputConfig.h
+=======
     src/ui/configuration/console.h \
     src/ui/configuration/SerialSettingsDialog.h \
     src/ui/configuration/terminalconsole.h \
@@ -507,10 +516,8 @@ HEADERS += src/MG.h \
     src/ui/px4_configuration/QGCPX4AirframeConfig.h \
     src/ui/QGCBaseParamWidget.h \
     src/ui/px4_configuration/QGCPX4MulticopterConfig.h \
-    src/ui/px4_configuration/QGCPX4SensorCalibration.h \
-    src/uas/ASLUAV.h \
-    src/ui/xbeereset.h \
-    src/ui/AudioOutputConfig.h
+    src/ui/px4_configuration/QGCPX4SensorCalibration.h
+>>>>>>> QGC/config
 
 # Google Earth is only supported on Mac OS and Windows with Visual Studio Compiler
 macx|macx-g++|macx-g++42|win32-msvc2008|win32-msvc2010|win32-msvc2012::HEADERS += src/ui/map3D/QGCGoogleEarthView.h
@@ -721,6 +728,11 @@ SOURCES += src/main.cc \
     src/ui/QGCConfigView.cc \
     src/ui/main/QGCViewModeSelection.cc \
     src/ui/main/QGCWelcomeMainWindow.cc \
+<<<<<<< HEAD
+    src/uas/ASLUAV.cpp \
+    src/ui/xbeereset.cpp \
+    src/ui/AudioOutputConfig.cpp
+=======
     src/ui/configuration/terminalconsole.cpp \
     src/ui/configuration/console.cpp \
     src/ui/configuration/SerialSettingsDialog.cc \
@@ -732,10 +744,8 @@ SOURCES += src/main.cc \
     src/ui/px4_configuration/QGCPX4AirframeConfig.cc \
     src/ui/QGCBaseParamWidget.cc \
     src/ui/px4_configuration/QGCPX4MulticopterConfig.cc \
-    src/ui/px4_configuration/QGCPX4SensorCalibration.cc \
-    src/uas/ASLUAV.cpp \
-    src/ui/xbeereset.cpp \
-    src/ui/AudioOutputConfig.cpp
+    src/ui/px4_configuration/QGCPX4SensorCalibration.cc
+>>>>>>> QGC/config
 
 # Enable Google Earth only on Mac OS and Windows with Visual Studio compiler
 macx|macx-g++|macx-g++42|win32-msvc2008|win32-msvc2010|win32-msvc2012::SOURCES += src/ui/map3D/QGCGoogleEarthView.cc
