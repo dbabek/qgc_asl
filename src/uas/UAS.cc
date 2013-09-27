@@ -1194,6 +1194,12 @@ void UAS::receiveMessage(LinkInterface* link, mavlink_message_t message)
             else
             {
                 emit textMessageReceived(uasId, message.compid, severity, text);
+
+				//RC LOSS audio safety warning (PhOe)
+				if(text.contains("RC SIGNAL LOST"))
+				{
+					GAudioOutput::instance()->say("CRITICAL! RC SIGNAL LOST!", 0);
+				}
             }
         }
             break;
