@@ -208,6 +208,8 @@ protected:
     float simUpdateHz;
     bool _sensorHilEnabled;
 
+	uint64_t time_old;
+
     void setName(QString name);
 };
 

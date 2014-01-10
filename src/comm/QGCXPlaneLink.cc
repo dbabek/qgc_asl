@@ -369,7 +369,10 @@ void QGCXPlaneLink::updateControls(uint64_t time, float rollAilerons, float pitc
         p.index = 25;   // XPlane, throttle command.
         writeBytes((const char*)&p, sizeof(p));
     }
-
+	float dt=float(time-time_old)/1.0e6f;
+	//printf("Ctrls sent.  Ail: %7.5f (t=%ull, t_old=%ull) after dt=%7.5f [s]\n",rollAilerons,time,time_old,dt);
+	if(dt>0.15f)	printf("WARNING: Slow Ctrl updates. Ail: %7.5f after dt %7.5f [s]\n",rollAilerons,dt);
+	time_old=time;
 }
 
 Eigen::Matrix3f euler_to_wRo(double yaw, double pitch, double roll) {
@@ -501,10 +504,15 @@ void QGCXPlaneLink::readBytes()
 
                 // TODO Add centrip. accel
 
-                xacc = gr[0];
+                /*xacc = gr[0];
                 yacc = gr[1];
-                zacc = gr[2];
+                zacc = gr[2];*/
 
+				//Added (PhOe): Real accel readings, directly from X-Plane, including centripetal forces
+				xacc = p.f[5]*9.81f;
+				yacc = p.f[6]*9.81f;
+				zacc = -p.f[4]*9.81f;
+				
                 fields_changed |= (1 << 0) | (1 << 1) | (1 << 2);
             }
             else if (p.index == 6 && xPlaneVersion == 10)
