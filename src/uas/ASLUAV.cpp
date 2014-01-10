@@ -95,7 +95,7 @@ void ASLUAV::receiveMessage(LinkInterface *link, mavlink_message_t message)
         {
 			case MAVLINK_MSG_ID_CUSTOM_SENSOR_DATA:
 			{
-				std::cout << "ASLUAV: Received Custom Sensor data message"<<endl;
+				//std::cout << "ASLUAV: Received Custom Sensor data message"<<endl;
 				
 				mavlink_custom_sensor_data_t data;
 				mavlink_msg_custom_sensor_data_decode(&message, &data);
@@ -245,98 +245,6 @@ void ASLUAV::receiveMessage(LinkInterface *link, mavlink_message_t message)
 			
 				break;
 			}
-			//************************************************************
-			//*** Old SenseSoar Messages
-			//************************************************************
-			//TODO: Generalize for ASLUAV-class
-			//Add optimized messages for lower data bandwith consumption?
-
-			/*case MAVLINK_MSG_ID_OBS_POSITION:
-			{
-				mavlink_obs_position_t posMsg;
-				mavlink_msg_obs_position_decode(&message, &posMsg);
-				quint64 time = getUnixTime();
-				this->longitude = posMsg.lon/(double)1E7;
-				this->latitude = posMsg.lat/(double)1E7;
-				this->altitude = posMsg.alt/1000.0;
-				emit valueChanged(uasId, "latitude", "deg", this->latitude, time);
-                emit valueChanged(uasId, "longitude", "deg", this->longitude, time);
-                emit valueChanged(uasId, "altitude", "m", this->altitude, time);
-				emit globalPositionChanged(this, this->latitude, this->longitude, this->altitude, time);
-				break;
-			}
-			case MAVLINK_MSG_ID_OBS_QFF:
-			{
-				mavlink_obs_qff_t qffMsg;
-				mavlink_msg_obs_qff_decode(&message,&qffMsg);
-				quint64 time = getUnixTime();
-				emit valueChanged(uasId, "QFF", "Pa", qffMsg.qff, time);
-				break;
-			}
-			case MAVLINK_MSG_ID_OBS_VELOCITY:
-			{
-				mavlink_obs_velocity_t velMsg;
-				mavlink_msg_obs_velocity_decode(&message, &velMsg);
-				quint64 time = getUnixTime();
-				emit valueChanged(uasId, "x speed", "m/s", velMsg.vel[0], time);
-                emit valueChanged(uasId, "y speed", "m/s", velMsg.vel[1], time);
-                emit valueChanged(uasId, "z speed", "m/s", velMsg.vel[2], time);
-				emit speedChanged(this, velMsg.vel[0], velMsg.vel[1], velMsg.vel[2], time);
-				break;
-			}
-			case MAVLINK_MSG_ID_OBS_WIND:
-			{
-				mavlink_obs_wind_t windMsg;
-				mavlink_msg_obs_wind_decode(&message, &windMsg);
-				quint64 time = getUnixTime();
-				emit valueChanged(uasId, "Wind speed x", "m/s", windMsg.wind[0], time);
-				emit valueChanged(uasId, "Wind speed y", "m/s", windMsg.wind[1], time);
-				emit valueChanged(uasId, "Wind speed z", "m/s", windMsg.wind[2], time);
-				break;
-			}
-			case MAVLINK_MSG_ID_PM_ELEC:
-			{
-				mavlink_pm_elec_t pmMsg;
-				mavlink_msg_pm_elec_decode(&message, &pmMsg);
-				quint64 time = getUnixTime();
-				emit valueChanged(uasId, "Battery status", "%", pmMsg.BatStat, time);
-				emit valueChanged(uasId, "Power consuming", "W", pmMsg.PwCons, time);
-				emit valueChanged(uasId, "Power generating sys1", "W", pmMsg.PwGen[0], time);
-				emit valueChanged(uasId, "Power generating sys2", "W", pmMsg.PwGen[1], time);
-				emit valueChanged(uasId, "Power generating sys3", "W", pmMsg.PwGen[2], time);
-				break;
-			}
-			case MAVLINK_MSG_ID_SYS_STAT:
-			{
-#define STATE_WAKING_UP            0x0  // TO DO: not important here, only for the visualisation needed
-#define STATE_ON_GROUND            0x1
-#define STATE_MANUAL_FLIGHT        0x2
-#define STATE_AUTONOMOUS_FLIGHT    0x3
-#define STATE_AUTONOMOUS_LAUNCH    0x4
-				mavlink_sys_stat_t statMsg;
-				mavlink_msg_sys_stat_decode(&message,&statMsg);
-				quint64 time = getUnixTime();
-				// check actuator states
-				emit valueChanged(uasId, "Motor1 status", "on/off", (statMsg.act & 0x01), time);
-				emit valueChanged(uasId, "Motor2 status", "on/off", (statMsg.act & 0x02)>>1, time);
-				emit valueChanged(uasId, "Servo1 status", "on/off", (statMsg.act & 0x04)>>2, time);
-				emit valueChanged(uasId, "Servo2 status", "on/off", (statMsg.act & 0x08)>>3, time);
-				emit valueChanged(uasId, "Servo3 status", "on/off", (statMsg.act & 0x10)>>4, time);
-				emit valueChanged(uasId, "Servo4 status", "on/off", (statMsg.act & 0x20)>>5, time);
-				// check the current state of the sensesoar
-				this->senseSoarState = statMsg.mod;
-				emit valueChanged(uasId,"senseSoar status","-",this->senseSoarState,time);
-				// check the gps fixes
-				emit valueChanged(uasId,"Lat Long fix","true/false", (statMsg.gps & 0x01), time);
-				emit valueChanged(uasId,"Altitude fix","true/false", (statMsg.gps & 0x02), time);
-				emit valueChanged(uasId,"GPS horizontal accuracy","m",((statMsg.gps & 0x1C)>>2), time);
-				emit valueChanged(uasId,"GPS vertiacl accuracy","m",((statMsg.gps & 0xE0)>>5),time);
-				// Xbee RSSI
-				emit valueChanged(uasId, "Xbee strength", "%", statMsg.commRssi, time);
-				//emit valueChanged(uasId, "Xbee strength", "%", statMsg.gps, time);  // TO DO: define gps bits
-
-				break;
-			}*/
 			default:
 			{
 				//std::cout << "msgid:"<<message.(int)msgid<<endl; //"ASLUAV: Unknown message received"<<endl;
