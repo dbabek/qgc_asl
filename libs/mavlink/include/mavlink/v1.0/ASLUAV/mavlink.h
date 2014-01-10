@@ -1,5 +1,5 @@
 /** @file
- *	@brief MAVLink comm protocol built from AtlantikSolar.xml
+ *	@brief MAVLink comm protocol built from ASLUAV.xml
  *	@see http://pixhawk.ethz.ch/software/mavlink
  */
 #ifndef MAVLINK_H
