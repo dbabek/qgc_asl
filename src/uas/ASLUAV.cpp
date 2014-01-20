@@ -284,7 +284,7 @@ void ASLUAV::setBatterySpecs(const QString& specs)
     }
     else
     {
-        batteryRemainingEstimateEnabled = true;
+        batteryRemainingEstimateEnabled = false;
         QString stringList = specs;
         stringList = stringList.remove("V");
         stringList = stringList.remove("v");
