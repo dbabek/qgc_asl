@@ -127,7 +127,9 @@ protected:
 #ifdef Q_OS_LINUX
     //cst_voice* voice; ///< The flite voice object
 #endif
+    #if _MSC_VER
 	static ISpVoice* pVoice;
+    #endif
 	int voiceIndex;   ///< The index of the flite voice to use (awb, slt, rms)
     Phonon::MediaObject* m_media; ///< The output object for audio
     Phonon::AudioOutput* m_audioOutput;
