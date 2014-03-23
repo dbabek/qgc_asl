@@ -30,7 +30,7 @@
 #include <Eigen/Geometry>
 #include <comm/px4_custom_mode.h>
 
-#include "ASLUAV/SLUAV.h"
+#include "ASLUAV/ASLUAV.h"
 
 #ifdef QGC_PROTOBUF_ENABLED
 #include <google/protobuf/descriptor.h>
