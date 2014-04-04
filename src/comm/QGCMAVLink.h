@@ -31,7 +31,7 @@ This file is part of the QGROUNDCONTROL project
 #define QGCMAVLINK_H
 
 //#include <mavlink.h>
-#include <ASLUAV\mavlink.h> // mod by PhilippOe
+#include <ASLUAV/mavlink.h> // mod by PhilippOe
 
 //#ifdef MAVLINK_CONF
 //#define MY_MACRO(x) <x>

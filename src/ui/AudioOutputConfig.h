@@ -2,7 +2,9 @@
 #define AUDIOOUTPUTCONFIG_H
 
 #include <QWidget>
-#include "ui_audiooutputconfig.h"
+#include "ui_AudioOutputConfig.h"
+
+
 
 class AudioOutputConfig : public QWidget
 {

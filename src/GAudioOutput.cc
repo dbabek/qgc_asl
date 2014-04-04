@@ -65,8 +65,9 @@ extern "C" {
 };
 #endif
 
+#if _MSC_VER
 ISpVoice* GAudioOutput::pVoice=NULL;
-
+#endif
 /**
  * This class follows the singleton design pattern
  * @see http://en.wikipedia.org/wiki/Singleton_pattern
